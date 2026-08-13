@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2f6f4f">
+<title>FAT 2급 문제풀이 · 92회 대비</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="app-header">
+  <div class="wrap">
+    <h1>FAT 2급 문제풀이 <span class="mini">92회 대비</span></h1>
+    <p class="sub">기출(80~91회) + 심화 · 분개 집중연습</p>
+  </div>
+</header>
+
+<!-- 상단 대탭 -->
+<nav class="tabs wrap" id="mainTabs">
+  <button class="tab active" data-tab="past">📚 기존문제 <small>(회차별)</small></button>
+  <button class="tab" data-tab="deep">🔥 심화문제 <small>(이론·분개)</small></button>
+</nav>
+
+<!-- 필터바 -->
+<section class="filters wrap" id="filters">
+  <div class="filterRow">
+    <button class="chip active" data-kind="all">전체</button>
+    <button class="chip" data-kind="theory">📝 이론</button>
+    <button class="chip" data-kind="journal">✍️ 분개</button>
+    <button class="chip" data-flag="heart">❤️ 92회 예상</button>
+    <button class="chip" data-flag="star">⭐ 빈출</button>
+  </div>
+  <div class="filterRow" id="roundRow">
+    <label class="rlabel">회차</label>
+    <select id="roundSelect">
+      <option value="all">전체 회차</option>
+    </select>
+  </div>
+</section>
+
+<main class="wrap" id="quizArea"></main>
+
+<div class="floatbar">
+  <span id="scoreText">푼 문제 0 · 정답 0</span>
+  <button id="resetBtn" title="풀이 기록 초기화">기록 초기화</button>
+</div>
+
+<footer class="app-footer wrap">
+  <p>⭐ = 자주 나오는 유형(별 개수=빈출도) · ❤️ = 92회에 나올법한 문제</p>
+  <p class="tiny">자료 출처: 한국공인회계사회 FAT 2급 기출문제(제80~91회). 개인 학습용.</p>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
