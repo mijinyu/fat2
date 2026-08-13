@@ -3,12 +3,33 @@
   "use strict";
   var NUM = ['①','②','③','④','⑤'];
   var STORE_KEY = 'fat2_progress_v1';
+  var VIEW_KEY  = 'fat2_view_v1';
   var PER_PAGE = 20;
   var state = { tab:'past', kind:'all', round:'all', page:1 };
   var progress = load();
 
   function load(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; } }
   function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(progress)); }catch(e){} }
+
+  /* 마지막으로 보던 탭/필터/회차/페이지 기억 */
+  function saveView(){
+    try{ localStorage.setItem(VIEW_KEY, JSON.stringify({tab:state.tab,kind:state.kind,round:state.round,page:state.page})); }catch(e){}
+  }
+  function restoreView(){
+    var v; try{ v=JSON.parse(localStorage.getItem(VIEW_KEY)); }catch(e){ v=null; }
+    if(!v) return;
+    if(v.tab==='past'||v.tab==='deep') state.tab=v.tab;
+    if(v.kind && document.querySelector('#filters .chip[data-kind="'+v.kind+'"]')) state.kind=v.kind;
+    if(v.page>0) state.page=v.page;
+    if(v.round && v.round!=='all'){
+      var has=[].some.call(roundSel.options,function(o){ return o.value===String(v.round); });
+      if(has) state.round=String(v.round);
+    }
+    document.querySelectorAll('#mainTabs .tab').forEach(function(x){ x.classList.toggle('active', x.dataset.tab===state.tab); });
+    document.querySelectorAll('#filters .chip').forEach(function(x){ x.classList.toggle('active', x.dataset.kind===state.kind); });
+    document.getElementById('roundRow').style.display = state.tab==='past'?'flex':'none';
+    roundSel.value = state.round;
+  }
 
   /* ---------- 계정과목/금액 정규화 ---------- */
   var SYN = {
@@ -79,7 +100,7 @@
 
     if(!list.length){
       var e=document.createElement('div'); e.className='emptymsg'; e.textContent='해당 조건의 문제가 없어요.';
-      area.appendChild(e); updateScore(); return;
+      area.appendChild(e); updateScore(); saveView(); return;
     }
     area.appendChild(pagerEl(pages));
     var start=(state.page-1)*PER_PAGE;
@@ -91,6 +112,7 @@
     });
     area.appendChild(pagerEl(pages));
     updateScore();
+    saveView();
     if(scrollTop) window.scrollTo(0,0);
   }
 
@@ -142,9 +164,10 @@
     return d;
   }
   function markAnswered(card,ok){
-    card.classList.remove('answered-ok','answered-no');
+    card.classList.remove('answered-ok','answered-no','answered-seen');
     if(ok===true) card.classList.add('answered-ok');
     else if(ok===false) card.classList.add('answered-no');
+    else card.classList.add('answered-seen');
   }
 
   /* ----- 이론 카드 (보기 클릭 = 즉시 채점) ----- */
@@ -158,7 +181,7 @@
     var act=document.createElement('div'); act.className='qactions';
     var dunno=document.createElement('button'); dunno.className='btn btn-ghost'; dunno.textContent='🙈 모르겠어요 · 정답 보기';
 
-    function grade(picked){ // picked: 보기 index, -1이면 '모르겠어요'
+    function grade(picked, replay){ // picked: 보기 index, -1이면 '모르겠어요' / replay: 저장된 기록 복원
       if(card.dataset.locked) return;
       card.dataset.locked='1';
       var els=opts.querySelectorAll('.opt');
@@ -172,6 +195,7 @@
         addAnsLine(res,q);
         res.appendChild(whyBox(q.why,'🧒 차근차근 풀이'));
         markAnswered(card,null);
+        if(!replay){ record(q.id,null,{pick:-1}); updateScore(); }
         return;
       }
       var ok = picked===q.ans;
@@ -188,7 +212,8 @@
         tog.addEventListener('click',function(){ if(!res.querySelector('.why')) res.appendChild(whyBox(q.why)); tog.remove(); });
         res.appendChild(tog);
       }
-      record(q.id,ok); markAnswered(card,ok); updateScore();
+      markAnswered(card,ok);
+      if(!replay){ record(q.id,ok,{pick:picked}); updateScore(); }
     }
 
     q.opts.forEach(function(text,i){
@@ -203,6 +228,8 @@
     dunno.addEventListener('click',function(){ grade(-1); });
     act.appendChild(dunno); card.appendChild(act); card.appendChild(res);
     restoreMark(card,q.id);
+    var saved=progress[q.id];
+    if(saved && typeof saved.pick==='number') grade(saved.pick, true); // 채점 화면 그대로 복원
     return card;
   }
   function addHead(res,txt){ var h=document.createElement('div'); h.className='rhead'; h.textContent=txt; res.appendChild(h); }
@@ -222,7 +249,7 @@
     table.appendChild(head);
     var rowsWrap=document.createElement('div'); table.appendChild(rowsWrap);
 
-    function addRow(side){
+    function addRow(side, v){ // v: 저장된 입력값 복원용
       var row=document.createElement('div'); row.className='jrow';
       row.innerHTML =
         '<div class="fld"><label>구분</label><select class="side">'+
@@ -238,6 +265,12 @@
         var n=amt.value.replace(/[^\d]/g,'');
         amt.value = n? Number(n).toLocaleString('en-US'):'';
       });
+      if(v){
+        row.querySelector('.side').value = v.s || side;
+        row.querySelector('.acc').value  = v.acc || '';
+        row.querySelector('.part').value = v.p || '';
+        amt.value = v.amt || '';
+      }
       rowsWrap.appendChild(row);
     }
     addRow('차'); addRow('대');
@@ -259,17 +292,20 @@
 
     clr.addEventListener('click',function(){ if(card.dataset.locked) return; rowsWrap.querySelectorAll('input').forEach(function(i){i.value='';}); });
 
-    chk.addEventListener('click',function(){
+    function doCheck(replay){ // replay: 저장된 기록 복원(재채점·재저장 안 함)
       if(card.dataset.locked) return;
-      var user=[];
+      var user=[], raw=[];
       rowsWrap.querySelectorAll('.jrow').forEach(function(r){
         var side=r.querySelector('.side').value;
-        var acc=normAcc(r.querySelector('.acc').value);
-        var amt=normAmt(r.querySelector('.amt').value);
+        var accRaw=r.querySelector('.acc').value, partRaw=r.querySelector('.part').value, amtRaw=r.querySelector('.amt').value;
+        raw.push({s:side,acc:accRaw,p:partRaw,amt:amtRaw});
+        var acc=normAcc(accRaw);
+        var amt=normAmt(amtRaw);
         if(acc==='' && isNaN(amt)) return;
         user.push({s:side,acc:acc,amt:amt});
       });
       card.dataset.locked='1'; chk.disabled=true;
+      rowsWrap.querySelectorAll('input,select').forEach(function(x){ x.disabled=true; });
 
       if(!user.length){ // 정답 없이 확인 → 정답 공개 + 자세한 풀이(한 줄씩)
         res.className='result show reveal';
@@ -279,6 +315,7 @@
         res.appendChild(whyBox(q.why,'🧒 차근차근 풀이'));
         res.appendChild(journalSteps(q.ans.entries));
         markAnswered(card,null);
+        if(!replay){ record(q.id,null,{rows:[]}); updateScore(); }
         return;
       }
       var ok = compareEntries(user, q.ans.entries);
@@ -292,9 +329,20 @@
         tog.addEventListener('click',function(){ if(!res.querySelector('.why')) res.appendChild(whyBox(q.why)); tog.remove(); });
         res.appendChild(tog);
       }
-      record(q.id,ok); markAnswered(card,ok); updateScore();
-    });
+      markAnswered(card,ok);
+      if(!replay){ record(q.id,ok,{rows:raw}); updateScore(); }
+    }
+    chk.addEventListener('click',function(){ doCheck(false); });
+
     restoreMark(card,q.id);
+    var saved=progress[q.id];
+    if(saved && saved.rows){ // 입력값 + 채점 화면 그대로 복원
+      if(saved.rows.length){
+        rowsWrap.innerHTML='';
+        saved.rows.forEach(function(v){ addRow(v.s, v); });
+      }
+      doCheck(true);
+    }
     return card;
   }
 
@@ -345,12 +393,23 @@
   function escapeHtml(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
   /* ---------- 진행상태 ---------- */
-  function record(id,ok){ progress[id]={ok:ok}; save(); }
+  function record(id,ok,extra){
+    var e={ok:ok};
+    if(extra) for(var k in extra) e[k]=extra[k];
+    progress[id]=e; save();
+  }
   function restoreMark(card,id){ var p=progress[id]; if(p) markAnswered(card, p.ok); }
   function updateScore(){
-    var ids=Object.keys(progress); var done=ids.length; var correct=0;
-    ids.forEach(function(k){ if(progress[k].ok) correct++; });
-    document.getElementById('scoreText').textContent='푼 문제 '+done+' · 정답 '+correct;
+    var done=0, correct=0, seen=0;
+    Object.keys(progress).forEach(function(k){
+      var p=progress[k];
+      if(p.ok===true){ done++; correct++; }
+      else if(p.ok===false){ done++; }
+      else seen++; // '모르겠어요'로 정답만 본 문제 (정답률에서 제외)
+    });
+    var t='푼 문제 '+done+' · 정답 '+correct;
+    if(seen) t+=' · 👀 정답 본 문제 '+seen;
+    document.getElementById('scoreText').textContent=t;
   }
 
   /* ---------- 컨트롤 ---------- */
@@ -385,5 +444,6 @@
   }
 
   buildRoundOptions();
+  restoreView();   // 마지막으로 보던 탭/필터/회차/페이지로 복귀
   render(false);
 })();

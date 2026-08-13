@@ -57,10 +57,10 @@ body{
 .opt{display:flex;gap:9px;align-items:flex-start;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer;font-size:14.5px;background:#fff;text-align:left}
 .opt .onum{font-weight:800;color:var(--muted);flex-shrink:0}
 .opt.sel{border-color:var(--dark);background:var(--soft2)}
-.opt.correct{border-color:var(--dark);border-width:2px;background:#ededed}
-.opt.correct .onum{color:var(--dark)}
-.opt.wrong{border-color:#999;border-style:dashed;background:#fafafa}
-.opt.wrong .onum{color:#666;text-decoration:line-through}
+.opt.correct{border-color:#2f6fe0;border-width:2px;background:#eaf1fd}
+.opt.correct .onum{color:#1a56c4}
+.opt.wrong{border-color:#e05656;border-width:2px;background:#fdecec}
+.opt.wrong .onum{color:#c0392b;text-decoration:line-through}
 .opt.locked{cursor:default}
 
 /* journal table */
@@ -84,10 +84,12 @@ body{
 /* result */
 .result{margin-top:12px;padding:12px 13px;border-radius:11px;font-size:14px;display:none}
 .result.show{display:block}
-.result.ok{background:#efefef;border:1px solid #cfcfcf}
-.result.no{background:#fafafa;border:1px dashed #bcbcbc}
+.result.ok{background:#eaf1fd;border:2px solid #2f6fe0}
+.result.no{background:#fdecec;border:2px solid #e05656}
 .result.reveal{background:#f3f3f3;border:1px solid #cccccc}
 .result .rhead{font-weight:800;font-size:15px;margin-bottom:6px;color:var(--ink)}
+.result.ok .rhead{color:#1a56c4}
+.result.no .rhead{color:#c0392b}
 .model{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:8px 0;font-size:13.5px}
 .model table{width:100%;border-collapse:collapse}
 .model td{padding:3px 4px;font-size:13.5px;vertical-align:top}
@@ -101,8 +103,10 @@ body{
 .steps ol{margin:0;padding-left:18px}
 .steps li{margin:2px 0}
 
-.answered-ok{border-left:4px solid var(--dark)}
-.answered-no{border-left:4px solid #bcbcbc}
+.answered-ok{border-left:4px solid #2f6fe0}
+.answered-no{border-left:4px solid #e05656}
+.answered-seen{border-left:4px solid #b0b0b0}
+.jrow input:disabled,.jrow select:disabled{cursor:default;background:#f7f7f7;color:#555;opacity:1;-webkit-text-fill-color:#555}
 
 .emptymsg{text-align:center;color:var(--muted);padding:40px 0;font-size:14px}
 .countline{font-size:12.5px;color:var(--muted);margin:2px 0 10px;font-weight:600}
