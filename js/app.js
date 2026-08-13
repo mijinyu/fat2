@@ -123,11 +123,14 @@
     return wrap;
   }
 
+  function starStr(n){ n=n||0; var s=''; for(var i=0;i<n;i++) s+='⭐'; return s; }
   function metaRow(q){
     var m=document.createElement('div'); m.className='meta';
     if(q.tab==='past'){ var r=document.createElement('span'); r.className='badge b-round'; r.textContent=q.round+'회'; m.appendChild(r); }
     var k=document.createElement('span'); k.className='badge '+(q.kind==='journal'?'b-kind-j':'b-kind-t'); k.textContent=(q.kind==='journal'?'분개':'이론'); m.appendChild(k);
     var c=document.createElement('span'); c.className='badge b-cat'; c.textContent=q.cat; m.appendChild(c);
+    if(q.star){ var s=document.createElement('span'); s.className='b-star'; s.textContent=starStr(q.star); s.title='빈출도 '+q.star; m.appendChild(s); }
+    if(q.heart){ var h=document.createElement('span'); h.className='b-heart'; h.textContent='❤️'; h.title='92회 예상'; m.appendChild(h); }
     var no=document.createElement('span'); no.className='qno'; no.textContent=q.no||''; m.appendChild(no);
     return m;
   }
@@ -144,57 +147,39 @@
     else if(ok===false) card.classList.add('answered-no');
   }
 
-  /* ----- 이론 카드 ----- */
+  /* ----- 이론 카드 (보기 클릭 = 즉시 채점) ----- */
   function theoryCard(q){
     var card=document.createElement('div'); card.className='card'; card.dataset.id=q.id;
     card.appendChild(metaRow(q));
     var qt=document.createElement('div'); qt.className='qtext'; qt.textContent=q.q; card.appendChild(qt);
     if(q.data) card.appendChild(dataBox(q.data));
     var opts=document.createElement('div'); opts.className='opts';
-    var picked={v:-1};
-    q.opts.forEach(function(text,i){
-      var o=document.createElement('button'); o.className='opt'; o.type='button';
-      var n=document.createElement('span'); n.className='onum'; n.textContent=NUM[i];
-      var t=document.createElement('span'); t.textContent=text;
-      o.appendChild(n); o.appendChild(t);
-      o.addEventListener('click',function(){
-        if(card.dataset.locked) return;
-        picked.v=i;
-        opts.querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel');});
-        o.classList.add('sel');
-      });
-      opts.appendChild(o);
-    });
-    card.appendChild(opts);
     var res=document.createElement('div'); res.className='result';
     var act=document.createElement('div'); act.className='qactions';
-    var chk=document.createElement('button'); chk.className='btn btn-check'; chk.textContent='정답 확인';
-    act.appendChild(chk); card.appendChild(act); card.appendChild(res);
+    var dunno=document.createElement('button'); dunno.className='btn btn-ghost'; dunno.textContent='🙈 모르겠어요 · 정답 보기';
 
-    chk.addEventListener('click',function(){
+    function grade(picked){ // picked: 보기 index, -1이면 '모르겠어요'
       if(card.dataset.locked) return;
       card.dataset.locked='1';
-      var optEls=opts.querySelectorAll('.opt');
-      optEls.forEach(function(x){ x.classList.add('locked'); });
-      chk.disabled=true;
+      var els=opts.querySelectorAll('.opt');
+      els.forEach(function(x){ x.classList.add('locked'); });
+      dunno.disabled=true;
 
-      if(picked.v<0){ // 정답 없이 확인 → 정답 공개 + 자세한 풀이
-        optEls[q.ans].classList.add('correct');
-        res.className='result show reveal';
-        res.innerHTML='';
+      if(picked<0){ // 정답 공개 + 자세한 풀이
+        els[q.ans].classList.add('correct');
+        res.className='result show reveal'; res.innerHTML='';
         addHead(res,'🙌 정답을 알려줄게요');
         addAnsLine(res,q);
         res.appendChild(whyBox(q.why,'🧒 차근차근 풀이'));
         markAnswered(card,null);
         return;
       }
-      var ok = picked.v===q.ans;
-      optEls.forEach(function(x,i){
+      var ok = picked===q.ans;
+      els.forEach(function(x,i){
         if(i===q.ans) x.classList.add('correct');
-        if(i===picked.v && !ok) x.classList.add('wrong');
+        if(i===picked && !ok) x.classList.add('wrong');
       });
-      res.className='result show '+(ok?'ok':'no');
-      res.innerHTML='';
+      res.className='result show '+(ok?'ok':'no'); res.innerHTML='';
       addHead(res, ok?'⭕ 정답이에요!':'❌ 틀렸어요');
       addAnsLine(res,q);
       if(!ok) res.appendChild(whyBox(q.why));
@@ -204,7 +189,19 @@
         res.appendChild(tog);
       }
       record(q.id,ok); markAnswered(card,ok); updateScore();
+    }
+
+    q.opts.forEach(function(text,i){
+      var o=document.createElement('button'); o.className='opt'; o.type='button';
+      var n=document.createElement('span'); n.className='onum'; n.textContent=NUM[i];
+      var t=document.createElement('span'); t.textContent=text;
+      o.appendChild(n); o.appendChild(t);
+      o.addEventListener('click',function(){ grade(i); });
+      opts.appendChild(o);
     });
+    card.appendChild(opts);
+    dunno.addEventListener('click',function(){ grade(-1); });
+    act.appendChild(dunno); card.appendChild(act); card.appendChild(res);
     restoreMark(card,q.id);
     return card;
   }

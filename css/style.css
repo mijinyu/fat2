@@ -44,6 +44,8 @@ body{
 .b-cat{background:var(--soft);color:#555}
 .b-kind-t{background:#e7e7e7;color:#333}
 .b-kind-j{background:#111;color:#fff}
+.b-star{font-size:11px;letter-spacing:-1px}
+.b-heart{font-size:12px}
 .qno{font-size:12px;color:var(--muted);font-weight:700;margin-left:auto}
 
 .qtext{font-size:15.5px;font-weight:600;margin:2px 0 10px;white-space:pre-wrap}
