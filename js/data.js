@@ -1812,6 +1812,28 @@ var DJ2 = [
 DJ2.forEach(function(q,i){ q.tab='deep'; q.kind='journal'; q.id='dj2_'+i; D.push(q); });
 })(window.FAT_DATA);
 
+/* ========== 결산 문제에 closing 표시 ==========
+   기출·심화 탭 안에서 '🧾 결산' 필터로 모아 볼 수 있게 표시만 남긴다.
+   (문제를 다른 탭으로 옮기지는 않는다) */
+(function(D){
+  /* 결산정리·결산절차에 직접 해당하는 이론 주제 */
+  var CLOSE_THEORY_CATS = [
+    '결산 절차','결산정리사항','결산정리 누락 영향','장부 마감','이월시산표',
+    '시산표','시산표 등식','시산표 오류',
+    '선급비용(보험료)','선수수익(임대료)','미수수익','미지급비용',
+    '결산-미지급비용','결산-미지급이자',
+    '결산-소모품','결산-소모품(자산처리법)','결산-소모품(비용처리법)',
+    '현금과부족','현금과부족 결산정리',
+    '감가상각비 계산','감가상각(정률법)','감가상각(장부금액)',
+    '대손충당금 계산'
+  ];
+  function isClosing(q){
+    if(q.kind==='journal') return /\[결산\]/.test(q.q) || /^결산/.test(q.cat);
+    return CLOSE_THEORY_CATS.indexOf(q.cat) >= 0;
+  }
+  D.forEach(function(q){ if(isClosing(q)) q.closing=true; });
+})(window.FAT_DATA);
+
 
 
 

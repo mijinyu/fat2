@@ -41,7 +41,9 @@ body{
 .card .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:9px}
 .badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px}
 .b-round{background:var(--soft2);color:var(--dark2)}
-.b-cat{background:var(--soft);color:#555}
+/* 유형 배지는 정답 힌트가 되므로 채점 전에는 숨기고, 푼 뒤에만 보여준다 */
+.b-cat{background:var(--soft);color:#555;display:none}
+.answered-ok .b-cat,.answered-no .b-cat,.answered-seen .b-cat{display:inline-block}
 .b-kind-t{background:#e7e7e7;color:#333}
 .b-kind-j{background:#111;color:#fff}
 .b-star{font-size:11px;letter-spacing:-1px}

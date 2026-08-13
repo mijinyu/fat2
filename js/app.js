@@ -79,7 +79,8 @@
   /* ---------- 데이터 조회 ---------- */
   function currentList(){
     var arr = (window.FAT_DATA||[]).filter(function(q){ return q.tab===state.tab; });
-    if(state.kind!=='all') arr = arr.filter(function(q){ return q.kind===state.kind; });
+    if(state.kind==='close') arr = arr.filter(function(q){ return q.closing; });        // 결산정리·결산절차만
+    else if(state.kind!=='all') arr = arr.filter(function(q){ return q.kind===state.kind; });
     if(state.tab==='past' && state.round!=='all') arr = arr.filter(function(q){ return String(q.round)===String(state.round); });
     return arr;
   }
