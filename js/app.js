@@ -249,7 +249,7 @@
     table.appendChild(head);
     var rowsWrap=document.createElement('div'); table.appendChild(rowsWrap);
 
-    function addRow(side, v){ // v: 저장된 입력값 복원용
+    function addRow(side, v, keepOrder){ // v: 저장된 입력값 복원용 / keepOrder: 정렬 없이 그대로 덧붙이기
       var row=document.createElement('div'); row.className='jrow';
       row.innerHTML =
         '<div class="fld"><label>구분</label><select class="side">'+
@@ -271,7 +271,19 @@
         row.querySelector('.part').value = v.p || '';
         amt.value = v.amt || '';
       }
-      rowsWrap.appendChild(row);
+      if(keepOrder) rowsWrap.appendChild(row); // 저장된 기록 복원: 적어둔 순서 그대로
+      else placeRow(row, side);
+    }
+    /* 차변은 차변끼리, 대변은 대변끼리 모이도록 끼워넣기 */
+    function placeRow(row, side){
+      var last=null;
+      [].forEach.call(rowsWrap.children,function(r){
+        var s=r.querySelector('.side');
+        if(s && s.value===side) last=r;
+      });
+      if(last) rowsWrap.insertBefore(row, last.nextSibling);      // 같은 구분의 마지막 행 바로 아래
+      else if(side==='차') rowsWrap.insertBefore(row, rowsWrap.firstChild); // 차변이 없으면 맨 위
+      else rowsWrap.appendChild(row);                             // 대변이 없으면 맨 아래
     }
     addRow('차'); addRow('대');
 
@@ -339,7 +351,7 @@
     if(saved && saved.rows){ // 입력값 + 채점 화면 그대로 복원
       if(saved.rows.length){
         rowsWrap.innerHTML='';
-        saved.rows.forEach(function(v){ addRow(v.s, v); });
+        saved.rows.forEach(function(v){ addRow(v.s, v, true); });
       }
       doCheck(true);
     }
