@@ -65,7 +65,12 @@ body{
 
 /* journal table */
 .jtable{margin-top:6px}
-.jrow{display:grid;grid-template-columns:64px 1fr 1fr 104px 30px;gap:6px;margin-bottom:6px;align-items:center}
+.jrow{display:grid;grid-template-columns:64px 1fr 1fr 104px 30px;gap:6px;margin-bottom:6px;align-items:center;padding:5px 7px;border-radius:9px}
+/* 차변 = 청록 / 대변 = 주황 (정오답 파랑·빨강과 겹치지 않게) */
+.jrow.side-d{background:#eaf5f4;border-color:#a9d5d1;box-shadow:inset 3px 0 0 #0f8a8a}
+.jrow.side-c{background:#fdf3e7;border-color:#e6c79a;box-shadow:inset 3px 0 0 #c77700}
+.jrow.side-d .side{border-color:#8fc6c2;color:#0b6d6d;font-weight:700}
+.jrow.side-c .side{border-color:#e0b479;color:#9a5c00;font-weight:700}
 .jhead{font-size:11px;color:var(--muted);font-weight:800;text-align:center;padding-bottom:2px}
 .jrow select,.jrow input{width:100%;padding:9px 8px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:#fff;color:var(--ink)}
 .jrow input.amt{text-align:right}
@@ -73,6 +78,8 @@ body{
 .addrows{display:flex;gap:8px;margin-top:2px}
 .addrow{flex:1;border:1.5px dashed var(--dark);background:#fff;color:var(--dark);
   border-radius:10px;padding:9px;font-size:14px;font-weight:700;cursor:pointer}
+.addrow-d{border-color:#0f8a8a;color:#0b6d6d;background:#f4fafa}
+.addrow-c{border-color:#c77700;color:#9a5c00;background:#fdf9f3}
 
 /* actions */
 .qactions{display:flex;gap:8px;margin-top:12px}
