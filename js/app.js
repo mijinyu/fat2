@@ -3,7 +3,8 @@
   "use strict";
   var NUM = ['①','②','③','④','⑤'];
   var STORE_KEY = 'fat2_progress_v1';
-  var state = { tab:'past', kind:'all', flag:null, round:'all' };
+  var PER_PAGE = 20;
+  var state = { tab:'past', kind:'all', round:'all', page:1 };
   var progress = load();
 
   function load(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; } }
@@ -30,7 +31,7 @@
     '광고선전비':'광고선전비','도서인쇄비':'도서인쇄비','교육훈련비':'교육훈련비',
     '차량유지비':'차량유지비','차량운반구':'차량운반구','소모품비':'소모품비',
     '사무용품비':'사무용품비','통신비':'통신비','보험료':'보험료','수선비':'수선비',
-    '세금과공과':'세금과공과금','대손상각비':'대손상각비','기타의대손상각비':'기타의대손상각비',
+    '대손상각비':'대손상각비','기타의대손상각비':'기타의대손상각비',
     '대손충당금':'대손충당금','감가상각누계액':'감가상각누계액','감가상각비':'감가상각비',
     '비품':'비품','건물':'건물','토지':'토지','소프트웨어':'소프트웨어',
     '단기대여금':'단기대여금','장기대여금':'장기대여금','단기차입금':'단기차입금','장기차입금':'장기차입금',
@@ -41,11 +42,10 @@
   function normAcc(s){
     if(!s) return '';
     s = String(s).trim().replace(/\s+/g,'');
-    s = s.replace(/^\d+[.\s]?/,'');       // 813. 코드 제거
+    s = s.replace(/^\d+[.\s]?/,'');
     s = s.replace(/원$/,'');
-    s = s.replace(/[()（）·ㆍ]/g,'');       // 괄호 등 제거
+    s = s.replace(/[()（）·ㆍ]/g,'');
     if(SYN[s]) return SYN[s];
-    // 괄호 안 표기까지 붙은 경우 대비
     return s;
   }
   function normAmt(v){
@@ -59,8 +59,6 @@
   function currentList(){
     var arr = (window.FAT_DATA||[]).filter(function(q){ return q.tab===state.tab; });
     if(state.kind!=='all') arr = arr.filter(function(q){ return q.kind===state.kind; });
-    if(state.flag==='heart') arr = arr.filter(function(q){ return q.heart; });
-    if(state.flag==='star') arr = arr.filter(function(q){ return (q.star||0)>=2; });
     if(state.tab==='past' && state.round!=='all') arr = arr.filter(function(q){ return String(q.round)===String(state.round); });
     return arr;
   }
@@ -68,21 +66,61 @@
   /* ---------- 렌더 ---------- */
   var area = document.getElementById('quizArea');
 
-  function starStr(n){ n=n||0; var s=''; for(var i=0;i<n;i++) s+='★'; return s; }
-
-  function render(){
+  function render(scrollTop){
     var list = currentList();
-    area.innerHTML = '';
-    var cnt = document.createElement('div');
-    cnt.className='countline';
-    cnt.textContent = '총 '+list.length+'문제';
+    var pages = Math.max(1, Math.ceil(list.length/PER_PAGE));
+    if(state.page>pages) state.page=pages;
+    if(state.page<1) state.page=1;
+    area.innerHTML='';
+
+    var cnt=document.createElement('div'); cnt.className='countline';
+    cnt.textContent='총 '+list.length+'문제 · '+state.page+'/'+pages+' 페이지 (한 페이지 '+PER_PAGE+'문제)';
     area.appendChild(cnt);
+
     if(!list.length){
       var e=document.createElement('div'); e.className='emptymsg'; e.textContent='해당 조건의 문제가 없어요.';
       area.appendChild(e); updateScore(); return;
     }
-    list.forEach(function(q){ area.appendChild(q.kind==='journal'?journalCard(q):theoryCard(q)); });
+    area.appendChild(pagerEl(pages));
+    var start=(state.page-1)*PER_PAGE;
+    list.slice(start, start+PER_PAGE).forEach(function(q,idx){
+      var card = q.kind==='journal'?journalCard(q):theoryCard(q);
+      var order=document.createElement('span'); // 번호 표시용 (선택)
+      card.dataset.seq=start+idx+1;
+      area.appendChild(card);
+    });
+    area.appendChild(pagerEl(pages));
     updateScore();
+    if(scrollTop) window.scrollTo(0,0);
+  }
+
+  function pagerEl(pages){
+    var wrap=document.createElement('div'); wrap.className='pager';
+    if(pages<=1) return wrap;
+    function pbtn(label,page,opts){
+      var b=document.createElement('button'); b.textContent=label;
+      if(opts&&opts.cur) b.className='cur';
+      if(opts&&opts.disabled) b.disabled=true;
+      else b.addEventListener('click',function(){ state.page=page; render(true); });
+      return b;
+    }
+    wrap.appendChild(pbtn('‹', state.page-1, {disabled:state.page===1}));
+    var nums=[];
+    if(pages<=9){ for(var i=1;i<=pages;i++) nums.push(i); }
+    else {
+      nums.push(1);
+      var lo=Math.max(2,state.page-1), hi=Math.min(pages-1,state.page+1);
+      if(lo>2) nums.push('…');
+      for(var j=lo;j<=hi;j++) nums.push(j);
+      if(hi<pages-1) nums.push('…');
+      nums.push(pages);
+    }
+    nums.forEach(function(n){
+      if(n==='…'){ var s=document.createElement('span'); s.className='ell'; s.textContent='…'; wrap.appendChild(s); }
+      else wrap.appendChild(pbtn(String(n), n, {cur:n===state.page}));
+    });
+    wrap.appendChild(pbtn('›', state.page+1, {disabled:state.page===pages}));
+    return wrap;
   }
 
   function metaRow(q){
@@ -90,8 +128,6 @@
     if(q.tab==='past'){ var r=document.createElement('span'); r.className='badge b-round'; r.textContent=q.round+'회'; m.appendChild(r); }
     var k=document.createElement('span'); k.className='badge '+(q.kind==='journal'?'b-kind-j':'b-kind-t'); k.textContent=(q.kind==='journal'?'분개':'이론'); m.appendChild(k);
     var c=document.createElement('span'); c.className='badge b-cat'; c.textContent=q.cat; m.appendChild(c);
-    if(q.star){ var s=document.createElement('span'); s.className='b-star'; s.textContent=starStr(q.star); s.title='빈출도 '+q.star; m.appendChild(s); }
-    if(q.heart){ var h=document.createElement('span'); h.className='b-heart'; h.textContent='❤️'; h.title='92회 예상'; m.appendChild(h); }
     var no=document.createElement('span'); no.className='qno'; no.textContent=q.no||''; m.appendChild(no);
     return m;
   }
@@ -102,10 +138,10 @@
     d.appendChild(document.createTextNode('\n'+txt));
     return d;
   }
-
   function markAnswered(card,ok){
     card.classList.remove('answered-ok','answered-no');
-    card.classList.add(ok?'answered-ok':'answered-no');
+    if(ok===true) card.classList.add('answered-ok');
+    else if(ok===false) card.classList.add('answered-no');
   }
 
   /* ----- 이론 카드 ----- */
@@ -137,39 +173,50 @@
 
     chk.addEventListener('click',function(){
       if(card.dataset.locked) return;
-      if(picked.v<0){ alert('보기를 먼저 선택해 주세요.'); return; }
       card.dataset.locked='1';
-      var ok = picked.v===q.ans;
       var optEls=opts.querySelectorAll('.opt');
+      optEls.forEach(function(x){ x.classList.add('locked'); });
+      chk.disabled=true;
+
+      if(picked.v<0){ // 정답 없이 확인 → 정답 공개 + 자세한 풀이
+        optEls[q.ans].classList.add('correct');
+        res.className='result show reveal';
+        res.innerHTML='';
+        addHead(res,'🙌 정답을 알려줄게요');
+        addAnsLine(res,q);
+        res.appendChild(whyBox(q.why,'🧒 차근차근 풀이'));
+        markAnswered(card,null);
+        return;
+      }
+      var ok = picked.v===q.ans;
       optEls.forEach(function(x,i){
-        x.classList.add('locked');
         if(i===q.ans) x.classList.add('correct');
         if(i===picked.v && !ok) x.classList.add('wrong');
       });
       res.className='result show '+(ok?'ok':'no');
       res.innerHTML='';
-      var h=document.createElement('div'); h.className='rhead'; h.textContent=ok?'⭕ 정답이에요!':'❌ 틀렸어요';
-      res.appendChild(h);
-      var a=document.createElement('div'); a.innerHTML='정답: <b>'+NUM[q.ans]+' '+escapeHtml(q.opts[q.ans])+'</b>'; res.appendChild(a);
-      if(!ok && q.why) res.appendChild(whyBox(q.why));
-      else if(q.why){ // 맞아도 해설 보기 토글
+      addHead(res, ok?'⭕ 정답이에요!':'❌ 틀렸어요');
+      addAnsLine(res,q);
+      if(!ok) res.appendChild(whyBox(q.why));
+      else {
         var tog=document.createElement('button'); tog.className='btn btn-ghost'; tog.style.marginTop='8px'; tog.textContent='해설 보기';
         tog.addEventListener('click',function(){ if(!res.querySelector('.why')) res.appendChild(whyBox(q.why)); tog.remove(); });
         res.appendChild(tog);
       }
-      chk.disabled=true;
       record(q.id,ok); markAnswered(card,ok); updateScore();
     });
     restoreMark(card,q.id);
     return card;
   }
+  function addHead(res,txt){ var h=document.createElement('div'); h.className='rhead'; h.textContent=txt; res.appendChild(h); }
+  function addAnsLine(res,q){ var a=document.createElement('div'); a.innerHTML='정답: <b>'+NUM[q.ans]+' '+escapeHtml(q.opts[q.ans])+'</b>'; res.appendChild(a); }
 
   /* ----- 분개 카드 ----- */
   function journalCard(q){
     var card=document.createElement('div'); card.className='card'; card.dataset.id=q.id;
     card.appendChild(metaRow(q));
-    if(q.date){ var dt=document.createElement('div'); dt.className='qtext'; dt.textContent='['+q.date+'] '+q.q; card.appendChild(dt); }
-    else { var qt=document.createElement('div'); qt.className='qtext'; qt.textContent=q.q; card.appendChild(qt); }
+    var qt=document.createElement('div'); qt.className='qtext';
+    qt.textContent=(q.date?('['+q.date+'] '):'')+q.q; card.appendChild(qt);
     if(q.data) card.appendChild(dataBox(q.data));
 
     var table=document.createElement('div'); table.className='jtable';
@@ -177,6 +224,7 @@
     ['구분','계정과목','거래처','금액',''].forEach(function(t){ var h=document.createElement('div'); h.className='jhead'; h.textContent=t; head.appendChild(h); });
     table.appendChild(head);
     var rowsWrap=document.createElement('div'); table.appendChild(rowsWrap);
+
     function addRow(side){
       var row=document.createElement('div'); row.className='jrow';
       row.innerHTML =
@@ -188,19 +236,22 @@
         '<div class="fld"><label>금액</label><input class="amt" type="text" inputmode="numeric" placeholder="0"></div>'+
         '<button class="delrow" type="button" title="행 삭제">✕</button>';
       row.querySelector('.delrow').addEventListener('click',function(){ if(card.dataset.locked) return; if(rowsWrap.children.length>1) row.remove(); });
-      // 금액 콤마 자동
       var amt=row.querySelector('.amt');
       amt.addEventListener('input',function(){
-        var caretEnd = amt.selectionStart===amt.value.length;
         var n=amt.value.replace(/[^\d]/g,'');
         amt.value = n? Number(n).toLocaleString('en-US'):'';
       });
       rowsWrap.appendChild(row);
     }
     addRow('차'); addRow('대');
-    var add=document.createElement('button'); add.className='addrow'; add.type='button'; add.textContent='＋ 행 추가';
-    add.addEventListener('click',function(){ if(card.dataset.locked) return; addRow('차'); });
-    table.appendChild(add);
+
+    var adds=document.createElement('div'); adds.className='addrows';
+    var addD=document.createElement('button'); addD.className='addrow'; addD.type='button'; addD.textContent='＋ 차변 추가';
+    var addC=document.createElement('button'); addC.className='addrow'; addC.type='button'; addC.textContent='＋ 대변 추가';
+    addD.addEventListener('click',function(){ if(card.dataset.locked) return; addRow('차'); });
+    addC.addEventListener('click',function(){ if(card.dataset.locked) return; addRow('대'); });
+    adds.appendChild(addD); adds.appendChild(addC);
+    table.appendChild(adds);
     card.appendChild(table);
 
     var res=document.createElement('div'); res.className='result';
@@ -218,24 +269,32 @@
         var side=r.querySelector('.side').value;
         var acc=normAcc(r.querySelector('.acc').value);
         var amt=normAmt(r.querySelector('.amt').value);
-        if(acc==='' && isNaN(amt)) return; // 빈 행 무시
+        if(acc==='' && isNaN(amt)) return;
         user.push({s:side,acc:acc,amt:amt});
       });
-      if(!user.length){ alert('분개를 입력해 주세요.'); return; }
+      card.dataset.locked='1'; chk.disabled=true;
+
+      if(!user.length){ // 정답 없이 확인 → 정답 공개 + 자세한 풀이(한 줄씩)
+        res.className='result show reveal';
+        res.innerHTML='';
+        addHead(res,'🙌 정답을 알려줄게요');
+        res.appendChild(modelTable(q.ans.entries));
+        res.appendChild(whyBox(q.why,'🧒 차근차근 풀이'));
+        res.appendChild(journalSteps(q.ans.entries));
+        markAnswered(card,null);
+        return;
+      }
       var ok = compareEntries(user, q.ans.entries);
-      card.dataset.locked='1';
       res.className='result show '+(ok?'ok':'no');
       res.innerHTML='';
-      var h=document.createElement('div'); h.className='rhead'; h.textContent=ok?'⭕ 정답이에요!':'❌ 다시 볼까요?';
-      res.appendChild(h);
+      addHead(res, ok?'⭕ 정답이에요!':'❌ 다시 볼까요?');
       res.appendChild(modelTable(q.ans.entries));
-      if(!ok && q.why) res.appendChild(whyBox(q.why));
-      else if(q.why){
+      if(!ok) res.appendChild(whyBox(q.why));
+      else {
         var tog=document.createElement('button'); tog.className='btn btn-ghost'; tog.style.marginTop='8px'; tog.textContent='해설 보기';
         tog.addEventListener('click',function(){ if(!res.querySelector('.why')) res.appendChild(whyBox(q.why)); tog.remove(); });
         res.appendChild(tog);
       }
-      chk.disabled=true;
       record(q.id,ok); markAnswered(card,ok); updateScore();
     });
     restoreMark(card,q.id);
@@ -250,13 +309,12 @@
     for(var i=0;i<a.length;i++){ if(a[i]!==b[i]) return false; }
     return true;
   }
-
   function modelTable(entries){
     var box=document.createElement('div'); box.className='model';
     var tbl=document.createElement('table');
     entries.forEach(function(e){
       var tr=document.createElement('tr');
-      tr.innerHTML='<td class="mside '+e.s+'">('+e.s+')</td>'+
+      tr.innerHTML='<td class="mside">('+e.s+')</td>'+
         '<td>'+escapeHtml(e.acc)+(e.p?' <span class="mpart">['+escapeHtml(e.p)+']</span>':'')+'</td>'+
         '<td class="mamt">'+Number(e.amt).toLocaleString('en-US')+'원</td>';
       tbl.appendChild(tr);
@@ -264,22 +322,34 @@
     box.appendChild(tbl);
     return box;
   }
+  function journalSteps(entries){
+    var box=document.createElement('div'); box.className='steps';
+    var l=document.createElement('span'); l.className='wlabel'; l.textContent='📋 한 줄씩 뜯어보기'; box.appendChild(l);
+    var ol=document.createElement('ol'); var d=0,c=0;
+    entries.forEach(function(e){
+      if(e.s==='차') d+=e.amt; else c+=e.amt;
+      var li=document.createElement('li');
+      li.textContent='('+e.s+'변) '+e.acc+' '+Number(e.amt).toLocaleString('en-US')+'원 → '+(e.s==='차'?'왼쪽(차변)에 적어요':'오른쪽(대변)에 적어요');
+      ol.appendChild(li);
+    });
+    var sum=document.createElement('li');
+    sum.textContent='차변 합계 '+d.toLocaleString('en-US')+'원 = 대변 합계 '+c.toLocaleString('en-US')+'원 (양쪽 금액이 꼭 같아야 해요)';
+    ol.appendChild(sum);
+    box.appendChild(ol);
+    return box;
+  }
 
-  function whyBox(txt){
+  function whyBox(txt,label){
     var w=document.createElement('div'); w.className='why';
-    var l=document.createElement('span'); l.className='wlabel'; l.textContent='🧒 쉽게 이해하기';
+    var l=document.createElement('span'); l.className='wlabel'; l.textContent=label||'🧒 쉽게 이해하기';
     w.appendChild(l); w.appendChild(document.createTextNode(txt));
     return w;
   }
-
   function escapeHtml(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
   /* ---------- 진행상태 ---------- */
   function record(id,ok){ progress[id]={ok:ok}; save(); }
-  function restoreMark(card,id){
-    var p=progress[id];
-    if(p){ /* 이전 결과 표시만 하고, 다시 풀 수 있게 잠그진 않음 */ markAnswered(card, p.ok); }
-  }
+  function restoreMark(card,id){ var p=progress[id]; if(p) markAnswered(card, p.ok); }
   function updateScore(){
     var ids=Object.keys(progress); var done=ids.length; var correct=0;
     ids.forEach(function(k){ if(progress[k].ok) correct++; });
@@ -289,31 +359,24 @@
   /* ---------- 컨트롤 ---------- */
   document.getElementById('mainTabs').addEventListener('click',function(e){
     var b=e.target.closest('.tab'); if(!b) return;
-    state.tab=b.dataset.tab;
+    state.tab=b.dataset.tab; state.page=1;
     document.querySelectorAll('#mainTabs .tab').forEach(function(x){x.classList.toggle('active',x===b);});
     document.getElementById('roundRow').style.display = state.tab==='past'?'flex':'none';
-    render();
+    render(true);
   });
 
   document.getElementById('filters').addEventListener('click',function(e){
     var c=e.target.closest('.chip'); if(!c) return;
-    if(c.dataset.kind){
-      state.kind=c.dataset.kind; state.flag=null;
-      setActive(c,'[data-kind]');
-      document.querySelectorAll('#filters .chip[data-flag]').forEach(function(x){x.classList.remove('active');});
-    } else if(c.dataset.flag){
-      if(c.classList.contains('active')){ c.classList.remove('active'); state.flag=null; }
-      else { document.querySelectorAll('#filters .chip[data-flag]').forEach(function(x){x.classList.remove('active');}); c.classList.add('active'); state.flag=c.dataset.flag; }
-    }
-    render();
+    state.kind=c.dataset.kind; state.page=1;
+    document.querySelectorAll('#filters .chip').forEach(function(x){x.classList.toggle('active',x===c);});
+    render(true);
   });
-  function setActive(el,sel){ document.querySelectorAll('#filters .chip'+sel).forEach(function(x){x.classList.toggle('active',x===el);}); }
 
   var roundSel=document.getElementById('roundSelect');
-  roundSel.addEventListener('change',function(){ state.round=roundSel.value; render(); });
+  roundSel.addEventListener('change',function(){ state.round=roundSel.value; state.page=1; render(true); });
 
   document.getElementById('resetBtn').addEventListener('click',function(){
-    if(confirm('풀이 기록을 모두 지울까요?')){ progress={}; save(); render(); }
+    if(confirm('풀이 기록을 모두 지울까요?')){ progress={}; save(); render(false); }
   });
 
   function buildRoundOptions(){
@@ -324,7 +387,6 @@
     });
   }
 
-  /* ---------- init ---------- */
   buildRoundOptions();
-  render();
+  render(false);
 })();
