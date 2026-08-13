@@ -271,17 +271,8 @@
         row.querySelector('.part').value = v.p || '';
         amt.value = v.amt || '';
       }
-      var sideSel=row.querySelector('.side');
-      paintSide(row);
-      sideSel.addEventListener('change',function(){ paintSide(row); });
       if(keepOrder) rowsWrap.appendChild(row); // 저장된 기록 복원: 적어둔 순서 그대로
       else placeRow(row, side);
-    }
-    /* 구분에 따라 행 색 입히기 */
-    function paintSide(row){
-      var s=row.querySelector('.side').value;
-      row.classList.toggle('side-d', s==='차');
-      row.classList.toggle('side-c', s==='대');
     }
     /* 차변은 차변끼리, 대변은 대변끼리 모이도록 끼워넣기 */
     function placeRow(row, side){
@@ -297,8 +288,8 @@
     addRow('차'); addRow('대');
 
     var adds=document.createElement('div'); adds.className='addrows';
-    var addD=document.createElement('button'); addD.className='addrow addrow-d'; addD.type='button'; addD.textContent='＋ 차변 추가';
-    var addC=document.createElement('button'); addC.className='addrow addrow-c'; addC.type='button'; addC.textContent='＋ 대변 추가';
+    var addD=document.createElement('button'); addD.className='addrow'; addD.type='button'; addD.textContent='＋ 차변 추가';
+    var addC=document.createElement('button'); addC.className='addrow'; addC.type='button'; addC.textContent='＋ 대변 추가';
     addD.addEventListener('click',function(){ if(card.dataset.locked) return; addRow('차'); });
     addC.addEventListener('click',function(){ if(card.dataset.locked) return; addRow('대'); });
     adds.appendChild(addD); adds.appendChild(addC);
