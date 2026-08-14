@@ -182,6 +182,27 @@
     d.appendChild(document.createTextNode('\n'+txt));
     return d;
   }
+  /* 시험지 원문 이미지 (눌렀을 때만 내려받는다) */
+  function imgBox(src){
+    var w=document.createElement('div'); w.className='imgbox';
+    var b=document.createElement('button'); b.type='button'; b.className='imgtoggle';
+    b.textContent='📄 시험지 원문 보기';
+    var im=null;
+    b.addEventListener('click',function(){
+      if(!im){
+        im=document.createElement('img'); im.className='qimg'; im.loading='lazy';
+        im.alt='시험지 원문'; im.src=src;
+        im.addEventListener('error',function(){ im.replaceWith(Object.assign(document.createElement('div'),{className:'imgfail',textContent:'원문 이미지를 불러오지 못했어요.'})); });
+        w.appendChild(im); b.textContent='📄 원문 접기'; return;
+      }
+      var open = im.style.display!=='none';
+      im.style.display = open?'none':'';
+      b.textContent = open?'📄 시험지 원문 보기':'📄 원문 접기';
+    });
+    w.appendChild(b);
+    return w;
+  }
+
   function markAnswered(card,ok){
     card.classList.remove('answered-ok','answered-no','answered-seen');
     if(ok===true) card.classList.add('answered-ok');
@@ -195,6 +216,7 @@
     card.appendChild(metaRow(q));
     var qt=document.createElement('div'); qt.className='qtext'; qt.textContent=q.q; card.appendChild(qt);
     if(q.data) card.appendChild(dataBox(q.data));
+    if(q.img) card.appendChild(imgBox(q.img));
     var opts=document.createElement('div'); opts.className='opts';
     var res=document.createElement('div'); res.className='result';
     var act=document.createElement('div'); act.className='qactions';

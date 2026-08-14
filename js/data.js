@@ -1834,6 +1834,19 @@ DJ2.forEach(function(q,i){ q.tab='deep'; q.kind='journal'; q.id='dj2_'+i; D.push
   D.forEach(function(q){ if(isClosing(q)) q.closing=true; });
 })(window.FAT_DATA);
 
+/* ========== 기출 이론 문제에 시험지 원문 이미지 연결 ==========
+   img/{회차}_q{번호}.png — 문제지 PDF에서 문제별로 잘라낸 원문 */
+(function(D){
+  D.forEach(function(q){
+    if(q.tab!=='past' || q.kind!=='theory' || !q.round || !q.no) return;
+    var m = String(q.no).match(/\d+/);
+    if(!m) return;
+    var no = parseInt(m[0],10);
+    if(no<1 || no>10) return;
+    q.img = 'img/'+q.round+'_q'+(no<10?'0':'')+no+'.png';
+  });
+})(window.FAT_DATA);
+
 /* ========== 계산 문제에 calc 표시 ==========
    보기가 금액으로 된 이론 문제 = 계산식을 세워야 푸는 문제 */
 (function(D){
