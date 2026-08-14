@@ -116,14 +116,11 @@ body{
 .databox{background:var(--soft);border:1px dashed #cfcfcf;border-radius:10px;padding:10px 12px;margin:8px 0;font-size:13.5px;color:#3d4753;white-space:pre-wrap;line-height:1.5}
 .databox .dlabel{display:inline-block;font-size:11px;font-weight:800;color:#fff;background:var(--dark);padding:1px 7px;border-radius:5px;margin-bottom:5px}
 
-/* 시험지 원문 이미지 */
-.imgbox{margin:9px 0 3px}
-.imgtoggle{border:1px solid var(--line);background:var(--soft);color:#555;
-  padding:6px 12px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer}
-.imgtoggle:hover{background:var(--soft2)}
-.qimg{display:block;width:100%;height:auto;margin-top:8px;
-  border:1px solid var(--line);border-radius:10px;background:#fff}
-.imgfail{margin-top:8px;font-size:12.5px;color:var(--muted)}
+/* 시험지 원문 이미지 — 카드 좌우 여백(15px)을 상쇄해 가로를 꽉 채운다 */
+.imgbox{margin:10px -15px}
+.qimg{display:block;width:100%;height:auto;background:#fff;
+  border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+.imgfail{margin:0 15px;font-size:12.5px;color:var(--muted)}
 
 /* theory options */
 .opts{display:flex;flex-direction:column;gap:7px;margin-top:4px}

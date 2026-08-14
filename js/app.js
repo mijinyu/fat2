@@ -182,24 +182,16 @@
     d.appendChild(document.createTextNode('\n'+txt));
     return d;
   }
-  /* 시험지 원문 이미지 (눌렀을 때만 내려받는다) */
+  /* 시험지 원문 이미지 — 바로 보여주되, 화면에 들어올 때 내려받는다 */
   function imgBox(src){
     var w=document.createElement('div'); w.className='imgbox';
-    var b=document.createElement('button'); b.type='button'; b.className='imgtoggle';
-    b.textContent='📄 시험지 원문 보기';
-    var im=null;
-    b.addEventListener('click',function(){
-      if(!im){
-        im=document.createElement('img'); im.className='qimg'; im.loading='lazy';
-        im.alt='시험지 원문'; im.src=src;
-        im.addEventListener('error',function(){ im.replaceWith(Object.assign(document.createElement('div'),{className:'imgfail',textContent:'원문 이미지를 불러오지 못했어요.'})); });
-        w.appendChild(im); b.textContent='📄 원문 접기'; return;
-      }
-      var open = im.style.display!=='none';
-      im.style.display = open?'none':'';
-      b.textContent = open?'📄 시험지 원문 보기':'📄 원문 접기';
+    var im=document.createElement('img'); im.className='qimg'; im.loading='lazy'; im.decoding='async';
+    im.alt='시험지 원문'; im.src=src;
+    im.addEventListener('error',function(){
+      var f=document.createElement('div'); f.className='imgfail'; f.textContent='원문 이미지를 불러오지 못했어요.';
+      im.replaceWith(f);
     });
-    w.appendChild(b);
+    w.appendChild(im);
     return w;
   }
 
