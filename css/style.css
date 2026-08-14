@@ -22,7 +22,10 @@ body{
 
 /* tabs */
 /* 세그먼트 방식 탭 — 회색 트랙 위에 선택된 것만 흰 알약으로 떠오른다 */
-.tabs{display:flex;gap:4px;margin:12px 0 10px;padding:4px;background:var(--soft2);border-radius:13px}
+/* .wrap의 max-width(820)와 좌우 여백(14)을 스스로 계산해 문제 카드와 폭을 맞춘다.
+   좌우 margin을 auto로 두지 않으면 가운데 정렬이 풀린다. */
+.tabs{display:flex;gap:4px;width:calc(100% - 28px);max-width:792px;margin:12px auto 10px;
+  padding:4px;background:var(--soft2);border-radius:13px}
 .tab{flex:1;padding:10px 6px;border:none;background:transparent;border-radius:10px;
   font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;
   transition:background .15s ease,color .15s ease,box-shadow .15s ease}
@@ -40,7 +43,8 @@ body{
 
 /* filters */
 .filters{background:var(--card);border:1px solid var(--line);border-radius:13px;
-  padding:2px 12px 6px;box-shadow:var(--shadow);margin-bottom:12px}
+  width:calc(100% - 28px);max-width:792px;margin:0 auto 12px;
+  padding:2px 12px 6px;box-shadow:var(--shadow)}
 /* 모든 조건 줄의 높이를 똑같이 맞춘다 (첫 줄만 좁아 보이던 문제) */
 .filterRow{display:flex;gap:6px;align-items:center;min-height:46px;padding:6px 0}
 .chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
@@ -204,7 +208,11 @@ body{
 .jrow input:disabled,.jrow select:disabled{cursor:default;background:#f7f7f7;color:#555;opacity:1;-webkit-text-fill-color:#555}
 
 .emptymsg{text-align:center;color:var(--muted);padding:40px 0;font-size:14px}
-.countline{font-size:12.5px;color:var(--muted);margin:2px 0 10px;font-weight:600}
+.countline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-size:12.5px;color:var(--muted);margin:2px 0 10px;font-weight:600}
+.refreshBtn{margin-left:auto;border:1px solid var(--line);background:#fff;color:var(--dark2);
+  padding:6px 11px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer}
+.refreshBtn:hover{background:var(--soft)}
 
 /* pagination */
 .pager{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center;margin:6px 0 14px}

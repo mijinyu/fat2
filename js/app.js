@@ -5,7 +5,9 @@
   var STORE_KEY = 'fat2_progress_v1';
   var VIEW_KEY  = 'fat2_view_v1';
   var PER_PAGE = 20;
-  var state = { tab:'past', kind:'all', star:0, heart:false, round:'all', page:1, pane:'calc' };
+  var state = { tab:'past', kind:'all', star:0, heart:false, status:'all', round:'all', page:1, pane:'calc' };
+  /* 틀린 것·정답만 본 것을 다시 풀 때는 지난 채점 결과를 되살리지 않는다 */
+  function reviewMode(){ return state.status==='wrong' || state.status==='seen'; }
   var progress = load();
 
   function load(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; } }
@@ -13,7 +15,7 @@
 
   /* 마지막으로 보던 탭/필터/회차/페이지 기억 */
   function saveView(){
-    try{ localStorage.setItem(VIEW_KEY, JSON.stringify({tab:state.tab,kind:state.kind,star:state.star,heart:state.heart,round:state.round,page:state.page,pane:state.pane})); }catch(e){}
+    try{ localStorage.setItem(VIEW_KEY, JSON.stringify({tab:state.tab,kind:state.kind,star:state.star,heart:state.heart,status:state.status,round:state.round,page:state.page,pane:state.pane})); }catch(e){}
   }
   function restoreView(){
     var v; try{ v=JSON.parse(localStorage.getItem(VIEW_KEY)); }catch(e){ v=null; }
@@ -22,6 +24,7 @@
     if(v.kind && document.querySelector('#filters .chip[data-kind="'+v.kind+'"]')) state.kind=v.kind;
     if(v.star>=0 && v.star<=3) state.star=v.star|0;
     state.heart = !!v.heart;
+    if(v.status && document.querySelector('#filters .chip[data-status="'+v.status+'"]')) state.status=v.status;
     if(v.pane && document.querySelector('#studyTabs .subtab[data-pane="'+v.pane+'"]')) state.pane=v.pane;
     if(v.page>0) state.page=v.page;
     if(v.round && v.round!=='all'){
@@ -32,6 +35,7 @@
     document.querySelectorAll('#filters .chip[data-kind]').forEach(function(x){ x.classList.toggle('active', x.dataset.kind===state.kind); });
     document.querySelectorAll('#filters .chip[data-star]').forEach(function(x){ x.classList.toggle('active', +x.dataset.star===state.star); });
     document.querySelectorAll('#filters .chip[data-heart]').forEach(function(x){ x.classList.toggle('active', (x.dataset.heart==='1')===state.heart); });
+    document.querySelectorAll('#filters .chip[data-status]').forEach(function(x){ x.classList.toggle('active', x.dataset.status===state.status); });
     applyTabView();
     applyStudyPane();
     roundSel.value = state.round;
@@ -158,6 +162,13 @@
     else if(state.kind!=='all') arr = arr.filter(function(q){ return q.kind===state.kind; });
     if(state.star>0) arr = arr.filter(function(q){ return (q.star||0) >= state.star; }); // 출제빈도 ★N 이상
     if(state.heart) arr = arr.filter(function(q){ return !!q.heart; });                  // 92회 예상만
+    if(state.status!=='all') arr = arr.filter(function(q){                                // 풀이 상태
+      var p = progress[q.id];
+      if(state.status==='wrong') return !!p && p.ok===false;
+      if(state.status==='seen')  return !!p && p.ok===null;
+      if(state.status==='todo')  return !p;
+      return true;
+    });
     if(state.tab==='past' && state.round!=='all') arr = arr.filter(function(q){ return String(q.round)===String(state.round); });
     return arr;
   }
@@ -173,7 +184,16 @@
     area.innerHTML='';
 
     var cnt=document.createElement('div'); cnt.className='countline';
-    cnt.textContent='총 '+list.length+'문제 · '+state.page+'/'+pages+' 페이지 (한 페이지 '+PER_PAGE+'문제)';
+    var cntTxt=document.createElement('span');
+    cntTxt.textContent='총 '+list.length+'문제 · '+state.page+'/'+pages+' 페이지 (한 페이지 '+PER_PAGE+'문제)';
+    cnt.appendChild(cntTxt);
+    /* 다시 푼 결과를 반영해 목록을 정리한다.
+       맞힌 문제는 목록에서 빠지고, 남은 문제는 다시 새 문제 상태가 된다. */
+    var rf=document.createElement('button'); rf.type='button'; rf.className='refreshBtn';
+    rf.textContent='🔄 목록 새로고침';
+    rf.title='맞힌 문제는 빠지고, 남은 문제는 다시 풀 수 있는 상태가 됩니다';
+    rf.addEventListener('click',function(){ render(true); });
+    cnt.appendChild(rf);
     area.appendChild(cnt);
 
     if(!list.length){
@@ -343,9 +363,11 @@
     card.appendChild(opts);
     dunno.addEventListener('click',function(){ grade(-1); });
     act.appendChild(dunno); card.appendChild(act); card.appendChild(res);
-    restoreMark(card,q.id);
-    var saved=progress[q.id];
-    if(saved && typeof saved.pick==='number') grade(saved.pick, true); // 채점 화면 그대로 복원
+    if(!reviewMode()){                                   // 복습 화면에서는 정답이 보이지 않게 새 문제처럼 둔다
+      restoreMark(card,q.id);
+      var saved=progress[q.id];
+      if(saved && typeof saved.pick==='number') grade(saved.pick, true); // 채점 화면 그대로 복원
+    }
     return card;
   }
   function addHead(res,txt){ var h=document.createElement('div'); h.className='rhead'; h.textContent=txt; res.appendChild(h); }
@@ -481,14 +503,16 @@
     }
     chk.addEventListener('click',function(){ doCheck(false); });
 
-    restoreMark(card,q.id);
-    var saved=progress[q.id];
-    if(saved && saved.rows){ // 입력값 + 채점 화면 그대로 복원
-      if(saved.rows.length){
-        rowsWrap.innerHTML='';
-        saved.rows.forEach(function(v){ addRow(v.s, v, true); });
+    if(!reviewMode()){                                   // 복습 화면에서는 입력값·정답을 되살리지 않는다
+      restoreMark(card,q.id);
+      var saved=progress[q.id];
+      if(saved && saved.rows){ // 입력값 + 채점 화면 그대로 복원
+        if(saved.rows.length){
+          rowsWrap.innerHTML='';
+          saved.rows.forEach(function(v){ addRow(v.s, v, true); });
+        }
+        doCheck(true);
       }
-      doCheck(true);
     }
     return card;
   }
@@ -574,6 +598,7 @@
     if(c.dataset.kind!==undefined) state.kind=c.dataset.kind;
     else if(c.dataset.star!==undefined) state.star=parseInt(c.dataset.star,10)||0;
     else if(c.dataset.heart!==undefined) state.heart=c.dataset.heart==='1';
+    else if(c.dataset.status!==undefined) state.status=c.dataset.status;
     else return;
     state.page=1;
     // 같은 줄 안에서만 선택 표시를 옮긴다
