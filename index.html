@@ -9,7 +9,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>FAT 2급 문제풀이 · 92회 대비</title>
-<link rel="stylesheet" href="css/style.css?v=20260814b">
+<link rel="stylesheet" href="css/style.css?v=20260814c">
 </head>
 <body>
 <header class="app-header">
@@ -66,9 +66,19 @@
 
 <!-- 공부 탭: 계산식 정리 -->
 <section class="wrap study" id="studyArea">
+  <nav class="subtabs" id="studyTabs">
+    <button class="subtab active" data-pane="calc">🧮 계산식</button>
+    <button class="subtab" data-pane="bs">🏦 재무상태표 계정</button>
+    <button class="subtab" data-pane="pl">💸 손익 계정</button>
+    <button class="subtab" data-pane="mix">🔀 헷갈리는 짝</button>
+    <button class="subtab" data-pane="jn">✍️ 분개 패턴</button>
+    <button class="subtab" data-pane="cl">📋 결산 순서</button>
+  </nav>
+
+<div class="studyPane active" data-pane="calc">
   <div class="studyCard studyIntro">
     <p class="lead">FAT 2급 계산 문제는 결국 아래 <b>7가지 식</b>에서 나옵니다. 식을 외우는 게 아니라 <b>순서</b>를 외우세요.</p>
-    <p class="tiny2">문제로 풀어보려면 위 <b>유형 → 🧮 계산</b> 칩을 누르세요.</p>
+    <p class="tiny2">문제로 풀어보려면 기존문제·심화문제 탭에서 <b>유형 → 🧮 계산</b> 칩을 누르세요. (기출 50 · 심화 36)</p>
   </div>
 
   <div class="studyCard">
@@ -156,8 +166,8 @@
     <p class="tip"><b>단기매매증권 취득원가에는 수수료를 넣지 않습니다.</b> 수수료비용으로 바로 처리해요. 유형자산과 정반대라 자주 나옵니다.</p>
   </div>
 
-  <div class="studyCard">
-    <h2>자주 틀리는 곳만 모아보기</h2>
+  <div class="studyCard warn">
+    <h2>⚠️ 자주 틀리는 곳만 모아보기</h2>
     <div class="fml">1. 처분손익 → 취득원가 아니라 <b>장부금액</b>과 비교
 2. 선급·선수 → <b>안 지난</b> 개월수 / 미수·미지급 → <b>지나간</b> 개월수
 3. 영업이익 → 이자·기부금·처분손익 <b>제외</b>
@@ -166,6 +176,266 @@
 6. 단기매매증권 수수료는 <b>비용</b>, 유형자산 부대비용은 <b>원가</b>
 7. 기말재고 과대 → 이익 과대 (원가가 줄어드니까)</div>
   </div>
+</div>
+
+<div class="studyPane" data-pane="bs">
+  <div class="studyCard studyIntro">
+    <p class="lead">재무상태표는 <b>자산 = 부채 + 자본</b>. 계정과목이 어느 칸에 앉는지만 알면 절반은 맞힙니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>자산 — 유동자산</h2>
+    <h3>당좌자산 (바로 현금화)</h3>
+    <div class="fml">현금및현금성자산 · 단기금융상품 · 단기매매증권
+외상매출금 · 받을어음  <span class="dim">← 둘을 합쳐 매출채권</span>
+미수금 · 미수수익 · 선급금 · 선급비용
+단기대여금 · 가지급금 · 현금과부족(임시)</div>
+    <h3>재고자산 (팔려고 보유)</h3>
+    <div class="fml">상품  <span class="dim">← FAT 2급(도소매)은 사실상 상품 하나</span></div>
+    <p class="tip"><b>차감계정 주의.</b> 대손충당금은 매출채권 아래에 <b>빼는 형식</b>으로 붙습니다. 자산이지만 부호가 반대예요.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>자산 — 비유동자산</h2>
+    <div class="fml"><b>투자자산</b>   장기금융상품 · 장기대여금 · 투자부동산
+<b>유형자산</b>   토지 · 건물 · 구축물 · 기계장치
+             차량운반구 · 비품 · 건설중인자산
+<b>무형자산</b>   영업권 · 산업재산권(특허권·상표권·실용신안권·디자인권)
+             개발비 · 소프트웨어
+<b>기타비유동</b> 임차보증금 · 장기외상매출금</div>
+    <p class="tip"><b>토지와 건설중인자산은 감가상각하지 않습니다.</b> 닳지 않거나 아직 안 쓰고 있어서예요. 감가상각누계액은 유형자산에서 빼는 차감계정입니다.</p>
+    <p class="tip"><b>보증금 방향.</b> 내가 맡긴 <b>임차</b>보증금은 자산, 내가 받은 <b>임대</b>보증금은 부채입니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>부채</h2>
+    <div class="fml"><b>유동부채</b> (1년 안에 갚음)
+   외상매입금 · 지급어음  <span class="dim">← 둘을 합쳐 매입채무</span>
+   미지급금 · 미지급비용 · 선수금 · 선수수익
+   예수금 · 가수금 · 단기차입금 · 유동성장기부채
+
+<b>비유동부채</b> (1년 넘게 뒤)
+   장기차입금 · 임대보증금</div>
+    <p class="tip"><b>유동성장기부채</b>는 원래 장기차입금이었다가 만기가 1년 안으로 들어온 것입니다. 처음부터 짧게 빌린 단기차입금과 구분하세요.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>자본 — 개인기업</h2>
+    <div class="fml">자본금  <span class="dim">← 개인기업은 자본 계정이 사실상 이것 하나</span>
+인출금  <span class="dim">← 결산 때 자본금에서 빼고 없앰 (차감)</span>
+
+기말자본 = 기초자본 + 추가출자 − 인출액 + 당기순이익</div>
+    <p class="tip">법인의 이익잉여금·자본잉여금·주식발행은 <b>FAT 2급 범위가 아닙니다.</b> 개인기업 기준으로만 보세요.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>차감계정 3형제</h2>
+    <div class="fml">대손충당금      → 매출채권에서 뺌   (자산 차감)
+감가상각누계액  → 유형자산에서 뺌   (자산 차감)
+인출금          → 자본금에서 뺌     (자본 차감)</div>
+    <p class="tip">셋 다 "있는데 빼는" 계정입니다. 시산표에는 대변에 나타나지만 자산·자본 쪽 계정이라 헷갈리기 쉬워요.</p>
+  </div>
+</div>
+
+<div class="studyPane" data-pane="pl">
+  <div class="studyCard studyIntro">
+    <p class="lead">손익계산서는 <b>매출총이익 → 영업이익 → 당기순이익</b> 3단계. 계정이 <b>판관비냐 영업외냐</b>만 가르면 됩니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>판매비와관리비 (영업이익에서 뺌)</h2>
+    <div class="fml">인건비   급여 · 잡급 · 상여금 · 퇴직급여 · 복리후생비
+활동비   여비교통비 · 접대비(기업업무추진비) · 운반비
+         차량유지비 · 교육훈련비 · 광고선전비
+사무비   통신비 · 수도광열비 · 소모품비 · 사무용품비 · 도서인쇄비
+관리비   임차료 · 보험료 · 수선비 · 수수료비용 · 세금과공과금
+상각·대손 감가상각비 · 무형자산상각비 · 대손상각비</div>
+    <p class="tip">외우기 어려우면 반대로 하세요. <b>영업외 목록이 훨씬 짧습니다.</b> 거기 없으면 판관비입니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>영업외수익 / 영업외비용</h2>
+    <div class="fml"><b>영업외수익</b>
+   이자수익 · 배당금수익 · 임대료
+   단기매매증권평가이익 · 단기매매증권처분이익
+   유형자산처분이익 · 잡이익
+
+<b>영업외비용</b>
+   이자비용 · 기부금 · 기타의대손상각비
+   단기매매증권평가손실 · 단기매매증권처분손실
+   유형자산처분손실 · 매출채권처분손실 · 잡손실 · 재해손실</div>
+    <p class="tip"><b>이 목록만 외우면 영업이익 계산 문제는 다 맞습니다.</b> 문제에서 이자비용·기부금·처분손익을 슬쩍 섞어 넣고 영업이익을 묻는 게 단골이에요.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>매출액에서 빼는 것 / 매입액에서 빼는 것</h2>
+    <div class="fml">순매출액 = 총매출 − 매출에누리 − 매출환입 − 매출할인
+순매입액 = 총매입 + 매입운임 − 매입에누리 − 매입환출 − 매입할인</div>
+    <p class="tip"><b>운임만 방향이 반대입니다.</b> 매입운임은 <b>더하고</b>, 나머지 에누리·환출입·할인은 전부 <b>뺍니다.</b></p>
+  </div>
+</div>
+
+<div class="studyPane" data-pane="mix">
+  <div class="studyCard studyIntro">
+    <p class="lead">FAT 2급 계정과목 문제는 대부분 <b>이 짝들 중 하나</b>를 고르라는 문제입니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>상품이냐 아니냐</h2>
+    <div class="cmp"><div><span class="ck">상품 거래</span>외상매출금 · 받을어음<br>외상매입금 · 지급어음</div><div><span class="ck">그 외 거래</span>미수금<br>미지급금</div></div>
+    <p class="tip">비품·차량을 팔고 못 받은 돈은 <b>미수금</b>, 복사기를 사고 안 준 돈은 <b>미지급금</b>입니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>돈이 먼저냐 물건이 먼저냐</h2>
+    <div class="cmp"><div><span class="ck">내가 먼저 줌 (자산)</span>선급금 — 계약금 지급<br>선급비용 — 비용 미리 냄</div><div><span class="ck">내가 먼저 받음 (부채)</span>선수금 — 계약금 수령<br>선수수익 — 수익 미리 받음</div></div>
+    <p class="tip"><b>선급"금"·선수"금"은 상품 거래</b>의 계약금, <b>선급"비용"·선수"수익"은 결산</b>에서 기간을 맞추는 계정입니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>누구한테 쓴 돈이냐</h2>
+    <div class="cmp"><div><span class="ck">우리 직원</span>복리후생비<br>(경조사·회식·건강보험 회사부담)</div><div><span class="ck">거래처</span>접대비(기업업무추진비)<br>(화환·선물·식사)</div></div>
+  </div>
+
+  <div class="studyCard">
+    <h2>맡아둔 돈이냐 정체불명이냐</h2>
+    <div class="cmp"><div><span class="ck">예수금</span>직원 소득세·4대보험<br>→ 나중에 대신 납부</div><div><span class="ck">가수금</span>내용 모를 입금<br>→ 밝혀지면 옮김</div></div>
+    <p class="tip">나간 돈 쪽 임시계정은 <b>가지급금</b>입니다. 출장비 개산액이 대표적이에요.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>자산이냐 비용이냐</h2>
+    <div class="cmp"><div><span class="ck">자본적 지출 (자산)</span>엘리베이터 설치<br>증축 · 개조 · 내용연수 연장</div><div><span class="ck">수익적 지출 (비용)</span>외벽 도색 · 유리 교체<br>정기점검 · 부품 교체 → 수선비</div></div>
+    <p class="tip">헷갈리면 <b>"가치가 올라갔나?"</b>만 물어보세요. 원래대로 되돌린 거면 비용입니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>대손 계정이 갈리는 지점</h2>
+    <div class="cmp"><div><span class="ck">매출채권 대손</span>대손상각비<br>(판매비와관리비)</div><div><span class="ck">대여금·미수금 대손</span>기타의대손상각비<br>(영업외비용)</div></div>
+  </div>
+
+  <div class="studyCard">
+    <h2>4대보험 회사부담분</h2>
+    <div class="cmp"><div><span class="ck">건강보험·고용·산재</span>복리후생비</div><div><span class="ck">국민연금</span>세금과공과금</div></div>
+    <p class="tip">직원에게서 뗀 부분은 둘 다 <b>예수금</b>을 없애는 것으로 처리합니다. 회사부담분만 계정이 갈려요.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>부대비용을 원가에 넣나</h2>
+    <div class="cmp"><div><span class="ck">유형자산 (넣음)</span>운반비·설치비·시운전비<br>취득세·중개수수료 → 취득원가</div><div><span class="ck">단기매매증권 (안 넣음)</span>매입수수료<br>→ 수수료비용으로 바로 비용</div></div>
+    <p class="tip">정반대라서 시험에 잘 나옵니다. <b>곧 팔 자산(단기매매증권)은 원가를 안 불립니다.</b></p>
+  </div>
+</div>
+
+<div class="studyPane" data-pane="jn">
+  <div class="studyCard studyIntro">
+    <p class="lead">기출 분개는 아래 패턴에서 거의 벗어나지 않습니다. <b>(차) 왼쪽 / (대) 오른쪽</b>만 기억하세요.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>상품 매매</h2>
+    <div class="fml">매입(현금+외상)  (차)상품          (대)현금 / 외상매입금
+매입운임 부담     (차)상품 <span class="dim">← 운임을 원가에 포함</span>
+매출(현금+외상)  (차)현금 / 외상매출금  (대)상품매출
+매출 시 택배비    (차)운반비        (대)현금
+계약금 지급       (차)선급금        (대)현금
+계약금 수령       (차)현금          (대)선수금</div>
+  </div>
+
+  <div class="studyCard">
+    <h2>어음과 채권</h2>
+    <div class="fml">어음 수취        (차)받을어음      (대)외상매출금
+어음 발행        (차)상품          (대)지급어음
+어음 만기 입금   (차)보통예금      (대)받을어음
+어음 할인(매각)  (차)보통예금 + 매출채권처분손실  (대)받을어음
+대손 확정        (차)대손충당금 (+대손상각비)     (대)외상매출금
+대손 회수        (차)현금          (대)대손충당금</div>
+  </div>
+
+  <div class="studyCard">
+    <h2>급여와 세금</h2>
+    <div class="fml">급여 지급     (차)급여          (대)예수금 + 보통예금
+원천세 납부   (차)예수금        (대)현금
+건강보험 납부 (차)예수금 + 복리후생비    (대)보통예금
+국민연금 납부 (차)예수금 + 세금과공과금  (대)현금
+자동차세·재산세 (차)세금과공과금  (대)현금
+일용직 임금   (차)잡급          (대)현금</div>
+  </div>
+
+  <div class="studyCard">
+    <h2>유형자산</h2>
+    <div class="fml">구입(취득세 포함) (차)차량운반구 <span class="dim">← 취득세까지 합친 금액</span>
+자본적 지출       (차)건물          (대)보통예금
+수익적 지출       (차)수선비        (대)현금
+처분(이익)        (차)현금 + 감가상각누계액
+                  (대)해당자산 + 유형자산처분이익
+처분(손실)        (차)현금 + 감가상각누계액 + 유형자산처분손실
+                  (대)해당자산</div>
+    <p class="tip">처분 분개는 <b>취득원가 전액을 대변에 털고, 감가상각누계액을 차변에 함께 지우는 것</b>이 핵심입니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>임시계정 정리</h2>
+    <div class="fml">가지급금 지급   (차)가지급금      (대)현금
+출장비 정산     (차)여비교통비 + 현금(잔액)  (대)가지급금
+가수금 발생     (차)보통예금      (대)가수금
+가수금 정리     (차)가수금        (대)외상매출금
+현금 부족 발견  (차)현금과부족    (대)현금
+현금 남음 발견  (차)현금          (대)현금과부족</div>
+  </div>
+
+  <div class="studyCard">
+    <h2>개인기업 자본</h2>
+    <div class="fml">사장님 개인 사용  (차)인출금      (대)보통예금
+추가 출자         (차)보통예금    (대)자본금
+결산 인출금 대체  (차)자본금      (대)인출금</div>
+  </div>
+</div>
+
+<div class="studyPane" data-pane="cl">
+  <div class="studyCard studyIntro">
+    <p class="lead">결산은 <b>순서</b>가 곧 문제입니다. 아래 흐름과 8가지 정리사항만 챙기세요.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>결산 절차</h2>
+    <div class="fml">1. 수정전시산표 작성      <span class="dim">← 지금까지 적은 것 집계</span>
+2. 결산정리분개          <span class="dim">← 기간을 맞추는 작업 (아래 8가지)</span>
+3. 수정후시산표 작성
+4. 장부 마감             <span class="dim">← 수익·비용은 집합손익으로, 자산·부채·자본은 차기이월</span>
+5. 재무제표 작성</div>
+    <p class="tip">장부 작성 순서는 <b>분개장 → 총계정원장 → 시산표 → 재무제표</b>. "분·총·시·재"로 외우세요.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>결산정리 8가지</h2>
+    <div class="fml">1. 감가상각      (차)감가상각비    (대)감가상각누계액
+2. 대손충당금    (차)대손상각비    (대)대손충당금
+3. 선급비용      (차)선급비용      (대)보험료 등
+4. 선수수익      (차)임대료 등     (대)선수수익
+5. 미수수익      (차)미수수익      (대)이자수익
+6. 미지급비용    (차)이자비용      (대)미지급비용
+7. 소모품 정리   자산처리 → (차)소모품비 (대)소모품
+                 비용처리 → (차)소모품   (대)소모품비
+8. 매출원가 대체 (차)상품매출원가  (대)상품</div>
+    <p class="tip">그 밖에 <b>현금과부족 정리</b>(→잡손실·잡이익), <b>인출금 대체</b>(→자본금), <b>유동성 대체</b>(장기차입금→유동성장기부채), <b>단기매매증권 평가</b>도 결산에 나옵니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>시산표로 잡히는 오류 / 못 잡는 오류</h2>
+    <div class="cmp"><div><span class="ck">잡힘</span>한쪽 금액만 틀림<br>한쪽만 전기<br>합계 계산 실수</div><div><span class="ck">못 잡음</span>거래 전체를 빠뜨림<br>차·대 양쪽을 같은 금액으로 틀림<br>계정과목을 잘못 씀</div></div>
+    <p class="tip">시산표는 <b>차변합계 = 대변합계</b>만 확인합니다. 양쪽이 똑같이 틀리면 아무 일 없어 보여요.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>결산정리를 빠뜨리면</h2>
+    <div class="fml">미지급비용 누락  → 비용 과소 → 당기순이익 <b>과대</b>
+미수수익 누락    → 수익 과소 → 당기순이익 <b>과소</b>
+선급비용 누락    → 비용 과대 → 당기순이익 <b>과소</b>
+선수수익 누락    → 수익 과대 → 당기순이익 <b>과대</b>
+감가상각 누락    → 비용 과소 → 당기순이익 <b>과대</b></div>
+  </div>
+</div>
 </section>
 
 <div class="floatbar">
@@ -177,7 +447,7 @@
   <p class="tiny">한국공인회계사회 FAT 2급 기출문제(제80~91회) 기반 · 개인 학습용</p>
 </footer>
 
-<script src="js/data.js?v=20260814b"></script>
-<script src="js/app.js?v=20260814b"></script>
+<script src="js/data.js?v=20260814c"></script>
+<script src="js/app.js?v=20260814c"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
   var STORE_KEY = 'fat2_progress_v1';
   var VIEW_KEY  = 'fat2_view_v1';
   var PER_PAGE = 20;
-  var state = { tab:'past', kind:'all', star:0, heart:false, round:'all', page:1 };
+  var state = { tab:'past', kind:'all', star:0, heart:false, round:'all', page:1, pane:'calc' };
   var progress = load();
 
   function load(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; } }
@@ -13,7 +13,7 @@
 
   /* 마지막으로 보던 탭/필터/회차/페이지 기억 */
   function saveView(){
-    try{ localStorage.setItem(VIEW_KEY, JSON.stringify({tab:state.tab,kind:state.kind,star:state.star,heart:state.heart,round:state.round,page:state.page})); }catch(e){}
+    try{ localStorage.setItem(VIEW_KEY, JSON.stringify({tab:state.tab,kind:state.kind,star:state.star,heart:state.heart,round:state.round,page:state.page,pane:state.pane})); }catch(e){}
   }
   function restoreView(){
     var v; try{ v=JSON.parse(localStorage.getItem(VIEW_KEY)); }catch(e){ v=null; }
@@ -22,6 +22,7 @@
     if(v.kind && document.querySelector('#filters .chip[data-kind="'+v.kind+'"]')) state.kind=v.kind;
     if(v.star>=0 && v.star<=3) state.star=v.star|0;
     state.heart = !!v.heart;
+    if(v.pane && document.querySelector('#studyTabs .subtab[data-pane="'+v.pane+'"]')) state.pane=v.pane;
     if(v.page>0) state.page=v.page;
     if(v.round && v.round!=='all'){
       var has=[].some.call(roundSel.options,function(o){ return o.value===String(v.round); });
@@ -32,6 +33,7 @@
     document.querySelectorAll('#filters .chip[data-star]').forEach(function(x){ x.classList.toggle('active', +x.dataset.star===state.star); });
     document.querySelectorAll('#filters .chip[data-heart]').forEach(function(x){ x.classList.toggle('active', (x.dataset.heart==='1')===state.heart); });
     applyTabView();
+    applyStudyPane();
     roundSel.value = state.round;
   }
 
@@ -472,6 +474,19 @@
     c.parentNode.querySelectorAll('.chip').forEach(function(x){x.classList.toggle('active',x===c);});
     render(true);
   });
+
+  /* 공부 탭 안의 서브탭 */
+  document.getElementById('studyTabs').addEventListener('click',function(e){
+    var b=e.target.closest('.subtab'); if(!b) return;
+    state.pane=b.dataset.pane;
+    applyStudyPane();
+    saveView();
+    window.scrollTo(0,0);
+  });
+  function applyStudyPane(){
+    document.querySelectorAll('#studyTabs .subtab').forEach(function(x){ x.classList.toggle('active', x.dataset.pane===state.pane); });
+    document.querySelectorAll('#studyArea .studyPane').forEach(function(x){ x.classList.toggle('active', x.dataset.pane===state.pane); });
+  }
 
   var roundSel=document.getElementById('roundSelect');
   roundSel.addEventListener('change',function(){ state.round=roundSel.value; state.page=1; render(true); });
