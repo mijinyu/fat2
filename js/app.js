@@ -182,14 +182,15 @@
     d.appendChild(document.createTextNode('\n'+txt));
     return d;
   }
-  /* 시험지 원문 이미지 — 바로 보여주되, 화면에 들어올 때 내려받는다 */
-  function imgBox(src){
+  /* 시험지 원문 이미지 — 문제 자체이므로 바로 보여준다 (화면에 들어올 때 내려받음) */
+  function imgBox(src, onFail){
     var w=document.createElement('div'); w.className='imgbox';
     var im=document.createElement('img'); im.className='qimg'; im.loading='lazy'; im.decoding='async';
     im.alt='시험지 원문'; im.src=src;
     im.addEventListener('error',function(){
-      var f=document.createElement('div'); f.className='imgfail'; f.textContent='원문 이미지를 불러오지 못했어요.';
+      var f=document.createElement('div'); f.className='imgfail'; f.textContent='원문 이미지를 불러오지 못했어요. 글자로 보여줄게요.';
       im.replaceWith(f);
+      if(onFail) onFail();
     });
     w.appendChild(im);
     return w;
@@ -206,10 +207,23 @@
   function theoryCard(q){
     var card=document.createElement('div'); card.className='card'; card.dataset.id=q.id;
     card.appendChild(metaRow(q));
-    var qt=document.createElement('div'); qt.className='qtext'; qt.textContent=q.q; card.appendChild(qt);
-    if(q.data) card.appendChild(dataBox(q.data));
-    if(q.img) card.appendChild(imgBox(q.img));
+    /* 시험지 원문이 있으면 문제·자료·보기가 이미지에 다 들어있으므로
+       글자로 된 문제·자료는 감추고, 아래에는 번호만 고르게 한다.
+       이미지를 못 불러오면 감췄던 글자를 도로 꺼낸다. */
+    var qt=document.createElement('div'); qt.className='qtext'; qt.textContent=q.q;
+    if(q.img) qt.classList.add('dupHidden');
+    card.appendChild(qt);
+    var dbox=null;
+    if(q.data){ dbox=dataBox(q.data); if(q.img) dbox.classList.add('dupHidden'); card.appendChild(dbox); }
     var opts=document.createElement('div'); opts.className='opts';
+    if(q.img){
+      opts.classList.add('numonly');
+      card.appendChild(imgBox(q.img, function fallback(){        // 이미지 실패 시 원래 화면으로
+        qt.classList.remove('dupHidden');
+        if(dbox) dbox.classList.remove('dupHidden');
+        opts.classList.remove('numonly');
+      }));
+    }
     var res=document.createElement('div'); res.className='result';
     var act=document.createElement('div'); act.className='qactions';
     var dunno=document.createElement('button'); dunno.className='btn btn-ghost'; dunno.textContent='🙈 모르겠어요 · 정답 보기';
@@ -252,7 +266,7 @@
     q.opts.forEach(function(text,i){
       var o=document.createElement('button'); o.className='opt'; o.type='button';
       var n=document.createElement('span'); n.className='onum'; n.textContent=NUM[i];
-      var t=document.createElement('span'); t.textContent=text;
+      var t=document.createElement('span'); t.className='otext'; t.textContent=text;
       o.appendChild(n); o.appendChild(t);
       o.addEventListener('click',function(){ grade(i); });
       opts.appendChild(o);

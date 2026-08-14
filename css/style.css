@@ -117,10 +117,12 @@ body{
 .databox .dlabel{display:inline-block;font-size:11px;font-weight:800;color:#fff;background:var(--dark);padding:1px 7px;border-radius:5px;margin-bottom:5px}
 
 /* 시험지 원문 이미지 — 카드 좌우 여백(15px)을 상쇄해 가로를 꽉 채운다 */
-.imgbox{margin:10px -15px}
-.qimg{display:block;width:100%;height:auto;background:#fff;
+.imgbox{margin:8px 0 2px}
+.qimg{display:block;width:calc(100% + 30px);margin:0 -15px;height:auto;background:#fff;
   border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
-.imgfail{margin:0 15px;font-size:12.5px;color:var(--muted)}
+.imgfail{margin-top:8px;font-size:12.5px;color:var(--muted)}
+/* 원문 이미지에 이미 들어있는 글자는 감춘다 */
+.dupHidden{display:none}
 
 /* theory options */
 .opts{display:flex;flex-direction:column;gap:7px;margin-top:4px}
@@ -132,6 +134,14 @@ body{
 .opt.wrong{border-color:#e05656;border-width:2px;background:#fdecec}
 .opt.wrong .onum{color:#c0392b;text-decoration:line-through}
 .opt.locked{cursor:default}
+/* 원문 이미지가 있는 문제 — 아래에는 번호만 크게 놓고 고르게 한다 */
+.opts.numonly{flex-direction:row;flex-wrap:wrap;gap:8px;margin-top:10px}
+.opts.numonly .otext{display:none}
+.opts.numonly .opt{flex:1 1 0;min-width:62px;justify-content:center;align-items:center;
+  padding:14px 8px;font-size:20px;line-height:1}
+.opts.numonly .opt .onum{font-size:22px;color:var(--dark2)}
+.opts.numonly .opt.correct .onum{color:#1a56c4}
+.opts.numonly .opt.wrong .onum{color:#c0392b}
 
 /* journal table */
 .jtable{margin-top:6px}
