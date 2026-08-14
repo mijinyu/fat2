@@ -250,7 +250,8 @@
     var k=document.createElement('span'); k.className='badge '+(q.kind==='journal'?'b-kind-j':'b-kind-t'); k.textContent=(q.kind==='journal'?'분개':'이론'); m.appendChild(k);
     var c=document.createElement('span'); c.className='badge b-cat'; c.textContent=q.cat; m.appendChild(c);
     if(q.star){ var s=document.createElement('span'); s.className='b-star'; s.textContent=starStr(q.star); s.title='빈출도 '+q.star; m.appendChild(s); }
-    if(q.heart){ var h=document.createElement('span'); h.className='b-heart'; h.textContent='❤️'; h.title='92회 예상'; m.appendChild(h); }
+    if(q.heart){ var h=document.createElement('span'); h.className='b-heart'; h.textContent='❤️';
+      h.title='92회 예상 · '+(q.theme||'')+(q.heartWhy?'\n'+q.heartWhy:''); m.appendChild(h); }
     var no=document.createElement('span'); no.className='qno'; no.textContent=q.no||''; m.appendChild(no);
     return m;
   }
@@ -403,10 +404,27 @@
           '<option value="대"'+(side==='대'?' selected':'')+'>대변</option></select></div>'+
         '<div class="fld"><label>계정과목</label><input class="acc" type="text" autocomplete="off"></div>'+
         '<div class="fld"><label>거래처</label><input class="part" type="text" placeholder="(선택)" autocomplete="off"></div>'+
-        '<div class="fld"><label>금액</label><input class="amt" type="text" inputmode="numeric" placeholder="0"></div>'+
+        '<div class="fld"><label>금액</label><span class="amtwrap">'+
+          '<input class="amt" type="text" inputmode="numeric" placeholder="0">'+
+          '<button class="amtfill" type="button" title="이 금액을 비어 있는 다른 칸에 채우기">⧉</button>'+
+        '</span></div>'+
         '<button class="delrow" type="button" title="행 삭제">✕</button>';
       row.querySelector('.delrow').addEventListener('click',function(){ if(card.dataset.locked) return; if(rowsWrap.children.length>1) row.remove(); });
       attachSuggest(row.querySelector('.acc'));
+      /* 같은 금액을 여러 번 치지 않도록, 이 칸의 금액을 비어 있는 다른 칸에 한 번에 채운다 */
+      row.querySelector('.amtfill').addEventListener('click',function(){
+        if(card.dataset.locked) return;
+        var me=row.querySelector('.amt'), v=me.value.trim();
+        if(!v) return;
+        /* 계정과목을 적어둔 행에만 채운다. 빈 행까지 채우면 채점에 걸려서 틀린 답이 된다 */
+        var rows=[].slice.call(rowsWrap.querySelectorAll('.jrow'));
+        var targets=rows.filter(function(r){ return r.querySelector('.acc').value.trim(); });
+        if(!targets.length) targets=rows;
+        targets.forEach(function(r){
+          var x=r.querySelector('.amt');
+          if(x!==me && !x.disabled && !x.value.trim()) x.value=v;
+        });
+      });
       var amt=row.querySelector('.amt');
       amt.addEventListener('input',function(){
         var n=amt.value.replace(/[^\d]/g,'');

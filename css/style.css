@@ -160,6 +160,14 @@ body{
 .jhead{font-size:11px;color:var(--muted);font-weight:800;text-align:center;padding-bottom:2px}
 .jrow select,.jrow input{width:100%;padding:9px 8px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:#fff;color:var(--ink)}
 .jrow input.amt{text-align:right}
+/* 금액 칸 + 붙여넣기 버튼 */
+.amtwrap{position:relative;display:block}
+.amtwrap .amt{padding-right:30px}
+.amtfill{position:absolute;right:3px;top:50%;transform:translateY(-50%);
+  width:24px;height:24px;padding:0;border:none;border-radius:6px;
+  background:var(--soft2);color:var(--dark2);font-size:13px;line-height:1;cursor:pointer}
+.amtfill:hover{background:var(--line)}
+.jrow input:disabled~.amtfill,.amtwrap .amt:disabled+.amtfill{display:none}
 .delrow{border:none;background:var(--soft2);color:var(--muted);border-radius:8px;height:36px;font-size:16px;cursor:pointer;padding:0}
 .addrows{display:flex;gap:8px;margin-top:2px}
 .addrow{flex:1;border:1.5px dashed var(--dark);background:#fff;color:var(--dark);

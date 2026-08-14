@@ -2063,6 +2063,119 @@ DJ2.forEach(function(q,i){ q.tab='deep'; q.kind='journal'; q.id='dj2_'+i; D.push
   });
 })(window.FAT_DATA);
 
+/* ========== 92회 예상(❤️) — 기출 패턴 분석으로 계산 ==========
+   80~91회 기출을 주제로 묶어 12회 중 몇 회에 출제됐는지 세고,
+   절반(6회) 이상 나온 주제에만 ❤️를 붙인다.
+   손으로 찍은 예측이 아니라 회차 커버리지가 근거다.
+   ★(출제빈도)와는 별개 축이라 서로 건드리지 않는다. */
+(function(D){
+  var NEXT_ROUND = 92;  // 예상 대상 회차
+  var ALWAYS_COV = 8;   // 12회 중 8회 이상이면 상시 출제형
+  var DUE_MIN_COV = 4;  // 주기 판단은 최소 4회는 나온 주제에만 적용
+
+  function themeOfJournal(q){
+    var a = q.ans.entries.map(function(e){ return e.acc; }).join(' ');
+    function has(s){ return a.indexOf(s) >= 0; }
+    if(has('상품매출원가')) return '결산-매출원가 대체';
+    if(has('대손충당금')||has('대손상각비')) return '대손충당금·대손';
+    if(has('감가상각')) return '감가상각';
+    if(has('선급비용')||has('선수수익')||has('미수수익')||has('미지급비용')) return '결산-기간배분';
+    if(has('현금과부족')||has('잡손실')||has('잡이익')) return '현금과부족·잡손익';
+    if(has('접대비')) return '접대비(거래처)';
+    if(has('복리후생비')) return '복리후생비(직원)';
+    if(has('급여')||has('잡급')) return '급여·예수금';
+    if(has('예수금')) return '4대보험·원천세';
+    if(has('단기매매증권')) return '단기매매증권';
+    if(has('받을어음')||has('지급어음')||has('매출채권처분손실')) return '어음';
+    if(has('선급금')) return '계약금 지급(선급금)';
+    if(has('선수금')) return '계약금 수령(선수금)';
+    if(has('가지급금')||has('가수금')) return '가지급금·가수금';
+    if(has('상품매출')) return '상품 매출';
+    if(has('상품')) return '상품 매입';
+    if(has('세금과공과')) return '세금과공과';
+    if(has('보증금')) return '보증금(임대차)';
+    if(has('이자비용')||has('이자수익')) return '이자';
+    if(has('기부금')) return '기부금';
+    if(has('인출금')||has('자본금')) return '개인기업 자본';
+    if(has('소프트웨어')||has('무형자산상각비')) return '무형자산';
+    if(has('건물')||has('비품')||has('차량운반구')||has('토지')||has('수선비')) return '유형자산';
+    if(has('미수금')||has('미지급금')) return '미수금·미지급금 판단';
+    if(has('운반비')) return '운반비';
+    if(has('여비교통비')) return '여비교통비';
+    if(has('통신비')) return '통신비';
+    if(has('수수료비용')) return '수수료비용';
+    if(has('광고선전비')) return '광고선전비';
+    if(has('보험료')) return '보험료';
+    if(has('차량유지비')) return '차량유지비';
+    if(has('도서인쇄비')||has('사무용품비')||has('소모품')) return '소모품·도서인쇄';
+    if(has('교육훈련비')) return '교육훈련비';
+    if(has('대여금')||has('차입금')) return '대여·차입';
+    if(has('임차료')||has('임대료')) return '임차료·임대료';
+    return '기타';
+  }
+  var TH_MAP = [
+    ['거래요소','거래요소 결합관계'],['회계상 거래','회계상 거래'],['순환과정','회계 순환과정'],
+    ['시산표','시산표'],['재무제표','재무제표 이해'],['재무상태표','재무제표 이해'],['손익계산서','재무제표 이해'],
+    ['대손','대손충당금 계산'],['매출채권','매출채권·매입채무 계산'],['외상매입금','매출채권·매입채무 계산'],
+    ['매출원가','매출원가·재고 계산'],['순매입','매출원가·재고 계산'],['매출액','매출원가·재고 계산'],
+    ['기말재고','매출원가·재고 계산'],['재고','매출원가·재고 계산'],['선입선출','매출원가·재고 계산'],
+    ['총평균','매출원가·재고 계산'],['이동평균','매출원가·재고 계산'],
+    ['감가상각','감가상각'],['취득원가','유형자산 취득원가'],['유형자산','유형자산'],['자본적','자본적·수익적 지출'],
+    ['무형자산','무형자산'],['영업이익','영업이익·당기순이익'],['당기순이익','영업이익·당기순이익'],
+    ['판관비','판관비·영업외 구분'],
+    ['선급','결산-기간배분'],['선수','결산-기간배분'],['미수','결산-기간배분'],['미지급','결산-기간배분'],
+    ['결산','결산정리·절차'],['현금과부족','현금과부족'],['현금및현금성','현금및현금성자산'],
+    ['단기매매증권','단기매매증권'],['어음','어음'],['계정과목','계정과목 판단'],['비유동부채','부채·자본 분류'],
+    ['당좌자산','계정 분류'],['기타비유동','계정 분류'],['예수금','예수금'],['자본','부채·자본 분류'],
+    ['발생주의','회계 기본개념'],['기간별','회계 기본개념'],['회계정보','회계 기본개념'],['총계정원장','총계정원장']
+  ];
+  function themeOf(q){
+    if(q.kind==='journal') return themeOfJournal(q);
+    for(var i=0;i<TH_MAP.length;i++) if(String(q.cat).indexOf(TH_MAP[i][0])>=0) return TH_MAP[i][1];
+    return '기타';
+  }
+
+  /* 1) 기출(80~91회)에서 주제별로 "어느 회차에" 나왔는지 모은다 */
+  var seen = {};
+  D.forEach(function(q){
+    if(q.tab!=='past' || !q.round) return;
+    var key = q.kind+'|'+themeOf(q);
+    (seen[key] = seen[key] || {})[q.round] = 1;
+  });
+
+  /* 2) 주제별 출제 패턴을 읽는다 — 몇 회 나왔나(횟수)뿐 아니라
+        평균 몇 회마다 나오나(주기), 마지막 출제 후 몇 회 지났나(공백),
+        최근 몇 회 연속인가(연속) 까지 본다. */
+  var pat = {};
+  Object.keys(seen).forEach(function(k){
+    var rs = Object.keys(seen[k]).map(Number).sort(function(a,b){ return a-b; });
+    var gaps = [], i;
+    for(i=1;i<rs.length;i++) gaps.push(rs[i]-rs[i-1]);
+    var avg = gaps.length ? gaps.reduce(function(a,b){return a+b;},0)/gaps.length : null;
+    var last = rs[rs.length-1];
+    var streak = 0;
+    for(i=NEXT_ROUND-1;i>=80;i--){ if(seen[k][i]) streak++; else break; }
+    pat[k] = { cov: rs.length, rounds: rs, avg: avg, last: last, since: NEXT_ROUND-last, streak: streak };
+  });
+
+  /* 3) 두 가지 신호로 92회 예상을 고른다
+        A. 상시 출제형 — 거의 매회 나오거나 최근 연속으로 나오는 주제
+        B. 주기 도래형 — 평균 주기보다 오래 쉬어 이번에 나올 차례인 주제 */
+  D.forEach(function(q){
+    var t = themeOf(q), p = pat[q.kind+'|'+t];
+    q.theme = t;
+    if(!p || t==='기타'){ q.heart = false; q.themeCov = 0; q.heartWhy = ''; return; }
+    q.themeCov = p.cov;
+    var always = p.cov >= ALWAYS_COV || p.streak >= 2;
+    var due    = p.cov >= DUE_MIN_COV && p.avg != null && p.since >= p.avg;
+    q.heart = always || due;
+    q.heartWhy = !q.heart ? ''
+      : p.streak >= 2 ? '최근 '+p.streak+'회 연속 출제'
+      : p.cov >= ALWAYS_COV ? '12회 중 '+p.cov+'회 출제(상시)'
+      : p.last+'회 이후 '+p.since+'회째 — 평균 '+p.avg.toFixed(1)+'회 주기라 나올 차례';
+  });
+})(window.FAT_DATA);
+
 /* ========== 계산 문제에 calc 표시 ==========
    보기가 금액으로 된 이론 문제 = 계산식을 세워야 푸는 문제 */
 (function(D){
