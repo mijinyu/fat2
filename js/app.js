@@ -182,17 +182,27 @@
     d.appendChild(document.createTextNode('\n'+txt));
     return d;
   }
-  /* 시험지 원문 이미지 — 문제 자체이므로 바로 보여준다 (화면에 들어올 때 내려받음) */
+  /* 시험지 원문 이미지 — 문제 자체이므로 바로 보여준다 (화면에 들어올 때 내려받음).
+     페이지를 넘기는 문제는 여러 장이 이어진다. */
   function imgBox(src, onFail){
+    var list = Array.isArray(src) ? src : [src];
     var w=document.createElement('div'); w.className='imgbox';
-    var im=document.createElement('img'); im.className='qimg'; im.loading='lazy'; im.decoding='async';
-    im.alt='시험지 원문'; im.src=src;
-    im.addEventListener('error',function(){
-      var f=document.createElement('div'); f.className='imgfail'; f.textContent='원문 이미지를 불러오지 못했어요. 글자로 보여줄게요.';
-      im.replaceWith(f);
-      if(onFail) onFail();
+    var failed=0;
+    list.forEach(function(s,i){
+      var im=document.createElement('img'); im.className='qimg'; im.loading='lazy'; im.decoding='async';
+      im.alt='시험지 원문'; im.src=s;
+      if(i) im.style.marginTop='10px';
+      im.addEventListener('error',function(){
+        im.remove(); failed++;
+        if(failed===list.length){
+          var f=document.createElement('div'); f.className='imgfail';
+          f.textContent='원문 이미지를 불러오지 못했어요. 글자로 보여줄게요.';
+          w.appendChild(f);
+          if(onFail) onFail();
+        }
+      });
+      w.appendChild(im);
     });
-    w.appendChild(im);
     return w;
   }
 
@@ -286,9 +296,17 @@
   function journalCard(q){
     var card=document.createElement('div'); card.className='card'; card.dataset.id=q.id;
     card.appendChild(metaRow(q));
+    /* 원문 이미지가 있으면 글자로 된 문제·자료는 감춘다 (분개 입력칸은 그대로) */
     var qt=document.createElement('div'); qt.className='qtext';
-    qt.textContent=(q.date?('['+q.date+'] '):'')+q.q; card.appendChild(qt);
-    if(q.data) card.appendChild(dataBox(q.data));
+    qt.textContent=(q.date?('['+q.date+'] '):'')+q.q;
+    if(q.imgs) qt.classList.add('dupHidden');
+    card.appendChild(qt);
+    var jdbox=null;
+    if(q.data){ jdbox=dataBox(q.data); if(q.imgs) jdbox.classList.add('dupHidden'); card.appendChild(jdbox); }
+    if(q.imgs) card.appendChild(imgBox(q.imgs, function(){
+      qt.classList.remove('dupHidden');
+      if(jdbox) jdbox.classList.remove('dupHidden');
+    }));
 
     var table=document.createElement('div'); table.className='jtable';
     var head=document.createElement('div'); head.className='jrow';

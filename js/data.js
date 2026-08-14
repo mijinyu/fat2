@@ -1847,6 +1847,19 @@ DJ2.forEach(function(q,i){ q.tab='deep'; q.kind='journal'; q.id='dj2_'+i; D.push
   });
 })(window.FAT_DATA);
 
+/* ========== 기출 분개 문제에 실무수행 원문 이미지 연결 ==========
+   js/imgmap.js 의 {회차|수행번호: [파일…]} 목록을 붙인다.
+   수행4-1·4-2(결산)는 결산자료 한 장을 함께 쓴다. */
+(function(D){
+  var M = window.FAT_IMG_J || {};
+  D.forEach(function(q){
+    if(q.tab!=='past' || q.kind!=='journal' || !q.round || !q.no) return;
+    var files = M[q.round+'|'+q.no];
+    if(!files && /^수행4/.test(String(q.no))) files = M[q.round+'|수행4'];
+    if(files && files.length) q.imgs = files.map(function(f){ return 'img/'+f; });
+  });
+})(window.FAT_DATA);
+
 /* ========== 계산 문제에 calc 표시 ==========
    보기가 금액으로 된 이론 문제 = 계산식을 세워야 푸는 문제 */
 (function(D){
