@@ -130,8 +130,7 @@
       var v=input.value.trim();
       if(!v) return close();
       var starts=[], has=[];
-      ACCOUNTS.forEach(function(a){
-        if(a===v) return;
+      ACCOUNTS.forEach(function(a){          // 입력한 것과 똑같은 계정과목도 후보에 넣는다
         var i=a.indexOf(v);
         if(i===0) starts.push(a); else if(i>0) has.push(a);
       });
