@@ -74,6 +74,14 @@ body{
   background:#fdf0f0;border-left:3px solid #e05656;border-radius:0 8px 8px 0;padding:9px 11px}
 .studyCard .tip b{color:#c0392b;font-weight:800}
 
+/* 꼭 외워야 하는 카드 = 파랑 강조 */
+.studyCard.key{border:2px solid #2f6fe0;background:#fbfcff}
+.studyCard.key h2{color:#1a56c4}
+.studyCard.key .fml{background:#eef3fd;border-color:#c9d9f5}
+.studyCard .tip2{margin:9px 0 0;font-size:13.5px;line-height:1.6;color:#35404a;
+  background:#eef3fd;border-left:3px solid #2f6fe0;border-radius:0 8px 8px 0;padding:9px 11px}
+.studyCard .tip2 b{color:#1a56c4;font-weight:800}
+
 /* 자주 틀리는 곳 카드 통째로 강조 */
 .studyCard.warn{border:2px solid #e05656;background:#fffafa}
 .studyCard.warn h2{color:#c0392b}
