@@ -5,7 +5,7 @@
   var STORE_KEY = 'fat2_progress_v1';
   var VIEW_KEY  = 'fat2_view_v1';
   var PER_PAGE = 20;
-  var state = { tab:'past', kind:'all', round:'all', page:1 };
+  var state = { tab:'past', kind:'all', star:0, heart:false, round:'all', page:1 };
   var progress = load();
 
   function load(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; } }
@@ -13,20 +13,24 @@
 
   /* 마지막으로 보던 탭/필터/회차/페이지 기억 */
   function saveView(){
-    try{ localStorage.setItem(VIEW_KEY, JSON.stringify({tab:state.tab,kind:state.kind,round:state.round,page:state.page})); }catch(e){}
+    try{ localStorage.setItem(VIEW_KEY, JSON.stringify({tab:state.tab,kind:state.kind,star:state.star,heart:state.heart,round:state.round,page:state.page})); }catch(e){}
   }
   function restoreView(){
     var v; try{ v=JSON.parse(localStorage.getItem(VIEW_KEY)); }catch(e){ v=null; }
     if(!v) return;
     if(v.tab==='past'||v.tab==='deep') state.tab=v.tab;
     if(v.kind && document.querySelector('#filters .chip[data-kind="'+v.kind+'"]')) state.kind=v.kind;
+    if(v.star>=0 && v.star<=3) state.star=v.star|0;
+    state.heart = !!v.heart;
     if(v.page>0) state.page=v.page;
     if(v.round && v.round!=='all'){
       var has=[].some.call(roundSel.options,function(o){ return o.value===String(v.round); });
       if(has) state.round=String(v.round);
     }
     document.querySelectorAll('#mainTabs .tab').forEach(function(x){ x.classList.toggle('active', x.dataset.tab===state.tab); });
-    document.querySelectorAll('#filters .chip').forEach(function(x){ x.classList.toggle('active', x.dataset.kind===state.kind); });
+    document.querySelectorAll('#filters .chip[data-kind]').forEach(function(x){ x.classList.toggle('active', x.dataset.kind===state.kind); });
+    document.querySelectorAll('#filters .chip[data-star]').forEach(function(x){ x.classList.toggle('active', +x.dataset.star===state.star); });
+    document.querySelectorAll('#filters .chip[data-heart]').forEach(function(x){ x.classList.toggle('active', (x.dataset.heart==='1')===state.heart); });
     document.getElementById('roundRow').style.display = state.tab==='past'?'flex':'none';
     roundSel.value = state.round;
   }
@@ -81,6 +85,8 @@
     var arr = (window.FAT_DATA||[]).filter(function(q){ return q.tab===state.tab; });
     if(state.kind==='close') arr = arr.filter(function(q){ return q.closing; });        // 결산정리·결산절차만
     else if(state.kind!=='all') arr = arr.filter(function(q){ return q.kind===state.kind; });
+    if(state.star>0) arr = arr.filter(function(q){ return (q.star||0) >= state.star; }); // 출제빈도 ★N 이상
+    if(state.heart) arr = arr.filter(function(q){ return !!q.heart; });                  // 92회 예상만
     if(state.tab==='past' && state.round!=='all') arr = arr.filter(function(q){ return String(q.round)===String(state.round); });
     return arr;
   }
@@ -100,7 +106,7 @@
     area.appendChild(cnt);
 
     if(!list.length){
-      var e=document.createElement('div'); e.className='emptymsg'; e.textContent='해당 조건의 문제가 없어요.';
+      var e=document.createElement('div'); e.className='emptymsg'; e.textContent='조회조건에 맞는 문제가 없어요. 위 조건을 바꿔보세요.';
       area.appendChild(e); updateScore(); saveView(); return;
     }
     area.appendChild(pagerEl(pages));
@@ -303,7 +309,17 @@
     var clr=document.createElement('button'); clr.className='btn btn-ghost'; clr.textContent='지우기';
     act.appendChild(chk); act.appendChild(clr); card.appendChild(act); card.appendChild(res);
 
-    clr.addEventListener('click',function(){ if(card.dataset.locked) return; rowsWrap.querySelectorAll('input').forEach(function(i){i.value='';}); });
+    /* 지우기: 입력을 비운다. 이미 채점한 문제면 잠금까지 풀어 다시 풀 수 있게 한다 */
+    clr.addEventListener('click',function(){
+      rowsWrap.querySelectorAll('input').forEach(function(i){ i.value=''; });
+      rowsWrap.querySelectorAll('input,select').forEach(function(x){ x.disabled=false; });
+      if(!card.dataset.locked) return;
+      delete card.dataset.locked;
+      chk.disabled=false;
+      res.className='result'; res.innerHTML='';
+      card.classList.remove('answered-ok','answered-no','answered-seen');
+      forget(q.id); updateScore();
+    });
 
     function doCheck(replay){ // replay: 저장된 기록 복원(재채점·재저장 안 함)
       if(card.dataset.locked) return;
@@ -411,6 +427,7 @@
     if(extra) for(var k in extra) e[k]=extra[k];
     progress[id]=e; save();
   }
+  function forget(id){ delete progress[id]; save(); }
   function restoreMark(card,id){ var p=progress[id]; if(p) markAnswered(card, p.ok); }
   function updateScore(){
     var done=0, correct=0, seen=0;
@@ -436,8 +453,13 @@
 
   document.getElementById('filters').addEventListener('click',function(e){
     var c=e.target.closest('.chip'); if(!c) return;
-    state.kind=c.dataset.kind; state.page=1;
-    document.querySelectorAll('#filters .chip').forEach(function(x){x.classList.toggle('active',x===c);});
+    if(c.dataset.kind!==undefined) state.kind=c.dataset.kind;
+    else if(c.dataset.star!==undefined) state.star=parseInt(c.dataset.star,10)||0;
+    else if(c.dataset.heart!==undefined) state.heart=c.dataset.heart==='1';
+    else return;
+    state.page=1;
+    // 같은 줄 안에서만 선택 표시를 옮긴다
+    c.parentNode.querySelectorAll('.chip').forEach(function(x){x.classList.toggle('active',x===c);});
     render(true);
   });
 

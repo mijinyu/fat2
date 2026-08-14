@@ -24,13 +24,32 @@
 <!-- 필터바 -->
 <section class="filters wrap" id="filters">
   <div class="filterRow">
-    <button class="chip active" data-kind="all">전체</button>
-    <button class="chip" data-kind="theory">📝 이론</button>
-    <button class="chip" data-kind="journal">✍️ 분개</button>
-    <button class="chip" data-kind="close">🧾 결산</button>
+    <span class="rlabel">유형</span>
+    <div class="chips">
+      <button class="chip active" data-kind="all">전체</button>
+      <button class="chip" data-kind="theory">📝 이론</button>
+      <button class="chip" data-kind="journal">✍️ 분개</button>
+      <button class="chip" data-kind="close">🧾 결산</button>
+    </div>
+  </div>
+  <div class="filterRow">
+    <span class="rlabel">출제빈도</span>
+    <div class="chips">
+      <button class="chip active" data-star="0">전체</button>
+      <button class="chip" data-star="1">⭐ 이상</button>
+      <button class="chip" data-star="2">⭐⭐ 이상</button>
+      <button class="chip" data-star="3">⭐⭐⭐</button>
+    </div>
+  </div>
+  <div class="filterRow">
+    <span class="rlabel">예상</span>
+    <div class="chips">
+      <button class="chip active" data-heart="0">전체</button>
+      <button class="chip" data-heart="1">❤️ 92회 예상</button>
+    </div>
   </div>
   <div class="filterRow" id="roundRow">
-    <label class="rlabel">회차</label>
+    <span class="rlabel">회차</span>
     <select id="roundSelect">
       <option value="all">전체 회차</option>
     </select>

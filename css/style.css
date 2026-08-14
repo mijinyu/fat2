@@ -21,20 +21,22 @@ body{
 .app-header .sub{margin:4px 0 0;font-size:13px;opacity:.85}
 
 /* tabs */
-.tabs{display:flex;gap:8px;margin-top:12px}
-.tab{flex:1;padding:12px 8px;border:none;background:var(--card);border-radius:12px 12px 0 0;
-  font-size:15px;font-weight:700;color:var(--muted);cursor:pointer;box-shadow:var(--shadow);border-bottom:3px solid transparent}
+.tabs{display:flex;gap:0;margin-top:12px}
+.tab{flex:1;padding:12px 8px;border:none;background:var(--soft);border-radius:12px 12px 0 0;
+  font-size:15px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent}
+.tab+.tab{border-left:1px solid var(--line2)}
 .tab small{font-weight:500;font-size:11px}
 .tab.active{color:var(--ink);border-bottom-color:var(--ink);background:#fff}
 
 /* filters */
-.filters{background:var(--card);border-radius:0 0 12px 12px;padding:10px 12px;box-shadow:var(--shadow);margin-bottom:12px}
-.filterRow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.filterRow+.filterRow{margin-top:8px}
+.filters{background:var(--card);border-radius:0 0 12px 12px;padding:11px 12px 12px;box-shadow:var(--shadow);margin-bottom:12px}
+.filterRow{display:flex;gap:6px;align-items:center}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.filterRow+.filterRow{margin-top:7px;padding-top:7px;border-top:1px solid var(--line2)}
 .chip{border:1px solid var(--line);background:#fff;color:var(--muted);padding:6px 13px;border-radius:20px;font-size:13.5px;font-weight:600;cursor:pointer}
 .chip.active{background:var(--dark);color:#fff;border-color:var(--dark)}
-.rlabel{font-size:12px;color:var(--muted);font-weight:700;margin-right:2px}
-#roundSelect{flex:1;padding:7px 10px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:#fff;color:var(--ink)}
+.rlabel{flex:0 0 52px;font-size:12px;color:var(--muted);font-weight:700}
+#roundSelect{flex:1;max-width:260px;padding:7px 10px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:#fff;color:var(--ink)}
 
 /* card */
 .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 15px;margin-bottom:14px;border:1px solid var(--line)}
