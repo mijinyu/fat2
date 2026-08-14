@@ -18,7 +18,7 @@
   function restoreView(){
     var v; try{ v=JSON.parse(localStorage.getItem(VIEW_KEY)); }catch(e){ v=null; }
     if(!v) return;
-    if(v.tab==='past'||v.tab==='deep') state.tab=v.tab;
+    if(v.tab==='past'||v.tab==='deep'||v.tab==='study') state.tab=v.tab;
     if(v.kind && document.querySelector('#filters .chip[data-kind="'+v.kind+'"]')) state.kind=v.kind;
     if(v.star>=0 && v.star<=3) state.star=v.star|0;
     state.heart = !!v.heart;
@@ -31,8 +31,17 @@
     document.querySelectorAll('#filters .chip[data-kind]').forEach(function(x){ x.classList.toggle('active', x.dataset.kind===state.kind); });
     document.querySelectorAll('#filters .chip[data-star]').forEach(function(x){ x.classList.toggle('active', +x.dataset.star===state.star); });
     document.querySelectorAll('#filters .chip[data-heart]').forEach(function(x){ x.classList.toggle('active', (x.dataset.heart==='1')===state.heart); });
-    document.getElementById('roundRow').style.display = state.tab==='past'?'flex':'none';
+    applyTabView();
     roundSel.value = state.round;
+  }
+
+  /* 공부 탭은 문제 목록·조회조건 대신 계산식 정리를 보여준다 */
+  function applyTabView(){
+    var study = state.tab==='study';
+    document.getElementById('filters').style.display   = study ? 'none' : '';
+    document.getElementById('quizArea').style.display  = study ? 'none' : '';
+    document.getElementById('studyArea').style.display = study ? 'block' : 'none';
+    document.getElementById('roundRow').style.display  = (!study && state.tab==='past') ? 'flex' : 'none';
   }
 
   /* ---------- 계정과목/금액 정규화 ---------- */
@@ -84,6 +93,7 @@
   function currentList(){
     var arr = (window.FAT_DATA||[]).filter(function(q){ return q.tab===state.tab; });
     if(state.kind==='close') arr = arr.filter(function(q){ return q.closing; });        // 결산정리·결산절차만
+    else if(state.kind==='calc') arr = arr.filter(function(q){ return q.calc; });        // 계산식을 세워야 푸는 문제
     else if(state.kind!=='all') arr = arr.filter(function(q){ return q.kind===state.kind; });
     if(state.star>0) arr = arr.filter(function(q){ return (q.star||0) >= state.star; }); // 출제빈도 ★N 이상
     if(state.heart) arr = arr.filter(function(q){ return !!q.heart; });                  // 92회 예상만
@@ -447,8 +457,8 @@
     var b=e.target.closest('.tab'); if(!b) return;
     state.tab=b.dataset.tab; state.page=1;
     document.querySelectorAll('#mainTabs .tab').forEach(function(x){x.classList.toggle('active',x===b);});
-    document.getElementById('roundRow').style.display = state.tab==='past'?'flex':'none';
-    render(true);
+    applyTabView();
+    if(state.tab!=='study') render(true); else { saveView(); window.scrollTo(0,0); }
   });
 
   document.getElementById('filters').addEventListener('click',function(e){
@@ -480,5 +490,5 @@
 
   buildRoundOptions();
   restoreView();   // 마지막으로 보던 탭/필터/회차/페이지로 복귀
-  render(false);
+  if(state.tab!=='study') render(false); else updateScore();
 })();

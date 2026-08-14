@@ -1834,6 +1834,18 @@ DJ2.forEach(function(q,i){ q.tab='deep'; q.kind='journal'; q.id='dj2_'+i; D.push
   D.forEach(function(q){ if(isClosing(q)) q.closing=true; });
 })(window.FAT_DATA);
 
+/* ========== 계산 문제에 calc 표시 ==========
+   보기가 금액으로 된 이론 문제 = 계산식을 세워야 푸는 문제 */
+(function(D){
+  function isCalc(q){
+    if(q.kind!=='theory' || !q.opts) return false;
+    var n=0;
+    q.opts.forEach(function(o){ if(/\d[\d,]*\s*원/.test(o)) n++; });
+    return n>=3;
+  }
+  D.forEach(function(q){ if(isCalc(q)) q.calc=true; });
+})(window.FAT_DATA);
+
 
 
 

@@ -9,7 +9,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>FAT 2급 문제풀이 · 92회 대비</title>
-<link rel="stylesheet" href="css/style.css?v=20260814a">
+<link rel="stylesheet" href="css/style.css?v=20260814b">
 </head>
 <body>
 <header class="app-header">
@@ -23,6 +23,7 @@
 <nav class="tabs wrap" id="mainTabs">
   <button class="tab active" data-tab="past">📚 기존문제 <small>(회차별)</small></button>
   <button class="tab" data-tab="deep">🔥 심화문제 <small>(이론·분개)</small></button>
+  <button class="tab" data-tab="study">📖 공부 <small>(계산식)</small></button>
 </nav>
 
 <!-- 필터바 -->
@@ -34,6 +35,7 @@
       <button class="chip" data-kind="theory">📝 이론</button>
       <button class="chip" data-kind="journal">✍️ 분개</button>
       <button class="chip" data-kind="close">🧾 결산</button>
+      <button class="chip" data-kind="calc">🧮 계산</button>
     </div>
   </div>
   <div class="filterRow">
@@ -62,6 +64,110 @@
 
 <main class="wrap" id="quizArea"></main>
 
+<!-- 공부 탭: 계산식 정리 -->
+<section class="wrap study" id="studyArea">
+  <div class="studyCard studyIntro">
+    <p class="lead">FAT 2급 계산 문제는 결국 아래 <b>7가지 식</b>에서 나옵니다. 식을 외우는 게 아니라 <b>순서</b>를 외우세요.</p>
+    <p class="tiny2">문제로 풀어보려면 위 <b>유형 → 🧮 계산</b> 칩을 누르세요.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>1. 상품매매 흐름</h2>
+    <div class="fml">순매입액 = 총매입 + 매입운임 − 매입에누리·환출 − 매입할인
+순매출액 = 총매출 − 매출에누리·환입 − 매출할인
+매출원가 = 기초상품 + 순매입 − 기말상품
+매출총이익 = 순매출액 − 매출원가</div>
+    <h3>역산도 자주 나옴</h3>
+    <div class="fml">기말상품 = 기초상품 + 순매입 − 매출원가
+순매입 = 매출원가 − 기초상품 + 기말상품</div>
+    <p class="tip"><b>운임 방향을 조심하세요.</b> 살 때 낸 운임은 상품 <b>원가에 더하고</b>, 팔 때 낸 운임은 <b>운반비(비용)</b>로 따로 뺍니다. 매출원가 계산에 안 들어갑니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>2. 재고 단가결정</h2>
+    <div class="fml">선입선출법 → 먼저 산 것부터 팔림. 창고엔 <b>최근에 산 것</b>이 남음
+총평균법 → 평균단가 = 총원가 ÷ 총수량 (기간 전체를 한 번에)
+이동평균법 → 매입할 때마다 평균단가를 다시 계산</div>
+    <p class="tip"><b>기말재고를 잘못 잡으면 이익이 반대로 움직입니다.</b><br>기말재고 과대 → 매출원가 과소 → 당기순이익 <b>과대</b><br>기말재고 과소 → 매출원가 과대 → 당기순이익 <b>과소</b></p>
+  </div>
+
+  <div class="studyCard">
+    <h2>3. 채권과 대손</h2>
+    <div class="fml">기말 매출채권 = 기초 + 외상매출 − 현금회수 − 대손처리
+기말 외상매입금 = 기초 + 외상매입 − 지급액</div>
+    <h3>대손충당금 (보충법)</h3>
+    <div class="fml">추가설정액 = 채권잔액 × 설정률 − 설정 전 충당금잔액
+기말 충당금잔액 = 기초 − 당기 대손처리 + 당기 설정액
+대손 확정 시 대손상각비 = 대손액 − 충당금잔액  (모자란 만큼만)</div>
+    <p class="tip"><b>계정과목이 갈립니다.</b> 매출채권 대손은 <b>대손상각비</b>(판관비), 대여금·미수금 같은 기타채권 대손은 <b>기타의대손상각비</b>(영업외비용)입니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>4. 유형자산</h2>
+    <div class="fml">취득원가 = 구입대금 + 취득부대비용
+   (운반비·설치비·시운전비·취득세·등록면허세·중개수수료)
+   ※ 취득 <b>후</b> 재산세·보험료는 원가에 넣지 않고 그해 비용</div>
+    <h3>감가상각</h3>
+    <div class="fml">정액법 = (취득원가 − 잔존가치) ÷ 내용연수 × 사용월수 ÷ 12
+정률법 = 장부금액(미상각잔액) × 상각률   ← 해마다 기준이 줄어듦</div>
+    <h3>처분</h3>
+    <div class="fml">장부금액 = 취득원가 − 감가상각누계액
+처분손익 = 처분금액 − 장부금액
+   처분금액 &gt; 장부금액 → 유형자산처분이익 (영업외수익)
+   처분금액 &lt; 장부금액 → 유형자산처분손실 (영업외비용)</div>
+    <p class="tip"><b>취득원가에서 바로 빼면 틀립니다.</b> 감가상각누계액이 주어졌다면 반드시 장부금액부터 구하세요. 이게 가장 흔한 실수입니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>5. 손익계산서 단계</h2>
+    <div class="fml">매출총이익 = 매출액 − 매출원가
+영업이익   = 매출총이익 − 판매비와관리비
+당기순이익 = 영업이익 + 영업외수익 − 영업외비용</div>
+    <h3>영업이익에 넣지 않는 것</h3>
+    <div class="fml">이자비용 · 이자수익 · 기부금 · 잡손실 · 잡이익
+유형자산처분손익 · 단기매매증권 처분·평가손익 · 배당금수익
+   → 전부 <b>영업외</b>. 당기순이익 단계에서만 반영</div>
+    <p class="tip"><b>판관비인지부터 판단하세요.</b> 급여·복리후생비·접대비·임차료·감가상각비·대손상각비·광고선전비·차량유지비·세금과공과금은 판관비라서 영업이익에서 뺍니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>6. 결산 기간배분 (월할)</h2>
+    <div class="fml">선급비용 = 지급액 × <b>미경과</b> 월수 ÷ 전체 월수
+선수수익 = 수령액 × <b>미경과</b> 월수 ÷ 전체 월수
+미수수익   = 원금 × 연이율 × <b>경과</b> 월수 ÷ 12
+미지급비용 = 원금 × 연이율 × <b>경과</b> 월수 ÷ 12</div>
+    <h3>세는 방향</h3>
+    <div class="fml">선급·선수 → 아직 <b>안 지난</b> 개월수 (다음 해 몫)
+미수·미지급 → 이미 <b>지나간</b> 개월수 (올해 몫인데 돈은 아직)</div>
+    <p class="tip"><b>예시.</b> 9월 1일에 1년분 보험료 1,200,000원을 냈다면 9~12월 4개월은 올해 몫, 남은 8개월이 선급비용 → 1,200,000 × 8/12 = 800,000원.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>7. 등식과 집계</h2>
+    <div class="fml">자산 = 부채 + 자본
+자본 = 자산 − 부채
+기말자본 = 기초자본 + 추가출자 − 인출액 + 당기순이익
+시산표 등식: 기말자산 + 총비용 = 기말부채 + 기초자본 + 총수익</div>
+    <h3>현금및현금성자산에 넣는 것 / 빼는 것</h3>
+    <div class="fml">넣음: 통화 · 타인발행수표 · 자기앞수표 · 우편환증서
+      보통예금 · 당좌예금 · <b>취득 당시</b> 만기 3개월 이내 금융상품
+뺌:   받을어음(매출채권) · 우표·수입인지 · 선일자수표
+      정기예금(만기 3개월 초과) · 당좌차월(→ 단기차입금)</div>
+    <p class="tip"><b>단기매매증권 취득원가에는 수수료를 넣지 않습니다.</b> 수수료비용으로 바로 처리해요. 유형자산과 정반대라 자주 나옵니다.</p>
+  </div>
+
+  <div class="studyCard">
+    <h2>자주 틀리는 곳만 모아보기</h2>
+    <div class="fml">1. 처분손익 → 취득원가 아니라 <b>장부금액</b>과 비교
+2. 선급·선수 → <b>안 지난</b> 개월수 / 미수·미지급 → <b>지나간</b> 개월수
+3. 영업이익 → 이자·기부금·처분손익 <b>제외</b>
+4. 매입운임은 원가에 <b>포함</b>, 매출운반비는 <b>비용</b>
+5. 대손충당금은 <b>보충법</b> — 필요액에서 있는 걸 빼고 모자란 만큼만
+6. 단기매매증권 수수료는 <b>비용</b>, 유형자산 부대비용은 <b>원가</b>
+7. 기말재고 과대 → 이익 과대 (원가가 줄어드니까)</div>
+  </div>
+</section>
+
 <div class="floatbar">
   <span id="scoreText">푼 문제 0 · 정답 0</span>
   <button id="resetBtn" title="풀이 기록 초기화">기록 초기화</button>
@@ -71,7 +177,7 @@
   <p class="tiny">한국공인회계사회 FAT 2급 기출문제(제80~91회) 기반 · 개인 학습용</p>
 </footer>
 
-<script src="js/data.js?v=20260814a"></script>
-<script src="js/app.js?v=20260814a"></script>
+<script src="js/data.js?v=20260814b"></script>
+<script src="js/app.js?v=20260814b"></script>
 </body>
 </html>
