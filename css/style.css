@@ -154,6 +154,14 @@ body{
 .addrow{flex:1;border:1.5px dashed var(--dark);background:#fff;color:var(--dark);
   border-radius:10px;padding:9px;font-size:14px;font-weight:700;cursor:pointer}
 
+/* 계정과목 자동완성 */
+.acsug{position:fixed;z-index:60;background:#fff;border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 6px 18px rgba(0,0,0,.14);overflow:hidden auto;max-height:238px;min-width:140px}
+.acsug-item{display:block;width:100%;text-align:left;border:none;background:#fff;color:var(--ink);
+  padding:10px 12px;font-size:14px;line-height:1.2;cursor:pointer;border-bottom:1px solid var(--line2)}
+.acsug-item:last-child{border-bottom:none}
+.acsug-item:hover,.acsug-item.on{background:var(--soft2)}
+
 /* actions */
 .qactions{display:flex;gap:8px;margin-top:12px}
 .btn{border:none;border-radius:10px;padding:11px 16px;font-size:14.5px;font-weight:700;cursor:pointer}

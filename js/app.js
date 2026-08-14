@@ -91,6 +91,66 @@
     return parseInt(n,10);
   }
 
+  /* ---------- 계정과목 자동완성 ---------- */
+  /* 문제 정답에 쓰인 계정과목을 모아 목록으로 삼는다 (데이터가 늘면 자동으로 늘어남) */
+  var ACCOUNTS = (function(){
+    var seen={}, list=[];
+    (window.FAT_DATA||[]).forEach(function(q){
+      if(q.kind!=='journal' || !q.ans || !q.ans.entries) return;
+      q.ans.entries.forEach(function(e){ if(e.acc && !seen[e.acc]){ seen[e.acc]=1; list.push(e.acc); } });
+    });
+    return list.sort(function(a,b){ return a.length-b.length || a.localeCompare(b,'ko'); });
+  })();
+
+  function attachSuggest(input){
+    var box=null, items=[], cur=-1;
+    function close(){ if(box){ box.remove(); box=null; items=[]; cur=-1; } }
+    function place(){
+      if(!box) return;
+      var r=input.getBoundingClientRect();
+      box.style.left=r.left+'px'; box.style.top=(r.bottom+2)+'px'; box.style.width=r.width+'px';
+    }
+    function highlight(){
+      items.forEach(function(el,i){ el.classList.toggle('on', i===cur); });
+      if(cur>=0 && items[cur]) items[cur].scrollIntoView({block:'nearest'});
+    }
+    function pick(name){ input.value=name; close(); }
+    function open(list){
+      close();
+      if(!list.length) return;
+      box=document.createElement('div'); box.className='acsug';
+      list.slice(0,8).forEach(function(name){
+        var b=document.createElement('button'); b.type='button'; b.className='acsug-item'; b.textContent=name;
+        b.addEventListener('mousedown',function(e){ e.preventDefault(); pick(name); });   // blur보다 먼저 잡는다
+        box.appendChild(b); items.push(b);
+      });
+      document.body.appendChild(box); place();
+    }
+    function match(){
+      var v=input.value.trim();
+      if(!v) return close();
+      var starts=[], has=[];
+      ACCOUNTS.forEach(function(a){
+        if(a===v) return;
+        var i=a.indexOf(v);
+        if(i===0) starts.push(a); else if(i>0) has.push(a);
+      });
+      open(starts.concat(has));
+    }
+    input.addEventListener('input', match);
+    input.addEventListener('focus', function(){ if(input.value.trim()) match(); });
+    input.addEventListener('blur', function(){ setTimeout(close,150); });
+    input.addEventListener('keydown', function(e){
+      if(!box) return;
+      if(e.key==='ArrowDown'){ e.preventDefault(); cur=(cur+1)%items.length; highlight(); }
+      else if(e.key==='ArrowUp'){ e.preventDefault(); cur=(cur<=0?items.length:cur)-1; highlight(); }
+      else if(e.key==='Enter'){ if(cur>=0){ e.preventDefault(); pick(items[cur].textContent); } }
+      else if(e.key==='Escape'){ close(); }
+    });
+    window.addEventListener('scroll', function(){ if(box) place(); }, true);
+    window.addEventListener('resize', function(){ if(box) place(); });
+  }
+
   /* ---------- 데이터 조회 ---------- */
   function currentList(){
     var arr = (window.FAT_DATA||[]).filter(function(q){ return q.tab===state.tab; });
@@ -320,11 +380,12 @@
         '<div class="fld"><label>구분</label><select class="side">'+
           '<option value="차"'+(side==='차'?' selected':'')+'>차변</option>'+
           '<option value="대"'+(side==='대'?' selected':'')+'>대변</option></select></div>'+
-        '<div class="fld"><label>계정과목</label><input class="acc" type="text" placeholder="예: 보통예금" autocomplete="off"></div>'+
+        '<div class="fld"><label>계정과목</label><input class="acc" type="text" autocomplete="off"></div>'+
         '<div class="fld"><label>거래처</label><input class="part" type="text" placeholder="(선택)" autocomplete="off"></div>'+
         '<div class="fld"><label>금액</label><input class="amt" type="text" inputmode="numeric" placeholder="0"></div>'+
         '<button class="delrow" type="button" title="행 삭제">✕</button>';
       row.querySelector('.delrow').addEventListener('click',function(){ if(card.dataset.locked) return; if(rowsWrap.children.length>1) row.remove(); });
+      attachSuggest(row.querySelector('.acc'));
       var amt=row.querySelector('.amt');
       amt.addEventListener('input',function(){
         var n=amt.value.replace(/[^\d]/g,'');
